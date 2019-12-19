@@ -8,6 +8,7 @@ set (CMAKE_CXX_STANDARD 11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED 
+  urdf
   hardware_interface
   controller_manager
   roscpp)

@@ -5,6 +5,8 @@
 #include <BaseCyclicClientRpc.h>
 #include <ActuatorConfigClientRpc.h>
 
+#include <joint_limits_interface/joint_limits_interface.h>
+
 
 #define NUMBER_OF_JOINTS 1
 
@@ -12,6 +14,8 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 {
   public:
     KinovaGen3HardwareInterface(
+      std::vector<std::string> joint_names,
+      std::vector<joint_limits_interface::JointLimits> limits,
       Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_base_cyclic_client, 
       Kinova::Api::Base::BaseClient *kinova_base_client,
       Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client);
@@ -23,8 +27,11 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     Kinova::Api::Base::BaseClient *kinova_client_; 
     Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client_; 
 
+    std::vector<std::string> joint_names_;
+    std::vector<joint_limits_interface::JointLimits> limits_;
     hardware_interface::JointStateInterface jnt_state_interface_;
     hardware_interface::EffortJointInterface jnt_eff_interface_;
+    joint_limits_interface::EffortJointSaturationInterface jnt_eff_limit_interface_;
     // no need to re-create this object every time it's used
     Kinova::Api::BaseCyclic::Feedback base_feedback_;
     double cmd_[NUMBER_OF_JOINTS];

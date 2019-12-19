@@ -27,6 +27,7 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <depend>hardware_interface</depend>
   <depend>controller_manager</depend>
+  <depend>urdf</depend>
   <depend>roscpp</depend>
   <buildtool_depend>catkin</buildtool_depend>
 

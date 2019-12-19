@@ -1,4 +1,5 @@
 #include "kinova_gen3_control/kinova_gen3_hardware_interface.h"
+#include "angles/angles.h"
 
 void
 InitializeLowLevelControl(
@@ -76,10 +77,12 @@ EndLowLevelControl(
 }
 
 KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
+  std::vector<std::string> joint_names,
+  std::vector<joint_limits_interface::JointLimits> limits,
   Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_base_cyclic_client, 
   Kinova::Api::Base::BaseClient *kinova_base_client,
   Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client
-  )
+  ) : joint_names_(joint_names), limits_(limits)
 {
 
   // the client to talk to the kinova base at 1KHz
@@ -92,14 +95,11 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   InitializeLowLevelControl(kinova_client_, kinova_actuator_config_client_);
 
   std::cout << "Register hardware interface" << std::endl;
-  std::vector<std::string> joint_names = {
-    "joint_7",
-  };
 
   // connect and register the joint state interfaces
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
-    hardware_interface::JointStateHandle state_handle(joint_names[i], &pos_[i], &vel_[i], &eff_[i]);
+    hardware_interface::JointStateHandle state_handle(joint_names_[i], &pos_[i], &vel_[i], &eff_[i]);
     jnt_state_interface_.registerHandle(state_handle);
   }
 
@@ -108,8 +108,20 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   // connect and register the joint position interfaces
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
-    hardware_interface::JointHandle eff_handle(jnt_state_interface_.getHandle(joint_names[i]), &cmd_[i]);
+    // note how a hardware_interface::JointHandle requires a hardware_interface::JointStateHandle in its constructor
+    // in case you're wondering how this for loop relates to the for loop above
+    hardware_interface::JointHandle eff_handle(jnt_state_interface_.getHandle(joint_names_[i]), &cmd_[i]);
     jnt_eff_interface_.registerHandle(eff_handle);
+  }
+
+
+  // set up the joint limiting interface so we can use it in "write"
+  for (int i = 0; i < NUMBER_OF_JOINTS; i++)
+  {
+    // Register handle in joint limits interface
+    joint_limits_interface::EffortJointSaturationHandle eff_limit_handle(jnt_eff_interface_.getHandle(joint_names_[i]), // We read the state and read/write the command
+                                         limits_[i]);       // Limits struct, copy constructor copies this
+    jnt_eff_limit_interface_.registerHandle(eff_limit_handle);
   }
 
   registerInterface(&jnt_eff_interface_);
@@ -124,6 +136,9 @@ KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
 void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Duration& period)
 {
   Kinova::Api::BaseCyclic::Command  base_command;
+  jnt_eff_limit_interface_.enforceLimits(period);
+
+  ROS_INFO_THROTTLE(0.5, "Writing an effort of %f", cmd_[0]);
 
   // TEMP JUST WRIST: for now, just do wrist!
   for (int i = 0; i < 7; i++)
@@ -136,7 +151,7 @@ void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Durati
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     // TEMP JUST WRIST: relevant_joint will need to change to i
-    base_command.mutable_actuators(relevant_joint)->set_torque_joint(eff_[i]);
+    base_command.mutable_actuators(relevant_joint)->set_torque_joint(cmd_[i]);
   }
 
   try
@@ -163,8 +178,9 @@ void KinovaGen3HardwareInterface::read(const ros::Time& time, const ros::Duratio
     // TEMP JUST WRIST: for now, just do wrist!
     i = 6;
     // END TEMP JUST WRIST
-    pos_[0] = base_feedback_.actuators(i).position();
-    vel_[0] = base_feedback_.actuators(i).velocity();
-    eff_[0] = base_feedback_.actuators(i).torque();
+    pos_[0] = angles::from_degrees(base_feedback_.actuators(i).position()); // originally degrees
+    vel_[0] = angles::from_degrees(base_feedback_.actuators(i).velocity()); // originally degrees per second
+    eff_[0] = base_feedback_.actuators(i).torque(); // originally Newton * meters
+    cmd_[0] = eff_[0];
   }
 }
