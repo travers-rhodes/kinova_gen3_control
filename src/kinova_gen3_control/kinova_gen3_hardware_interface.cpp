@@ -5,10 +5,10 @@ InitializeLowLevelControl(
   Kinova::Api::Base::BaseClient *kinova_client,
   Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client) 
 {
-  auto servoing_mode = k_api::Base::ServoingModeInformation();
+  auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
   servoing_mode.set_servoing_mode(Kinova::Api::Base::ServoingMode::LOW_LEVEL_SERVOING);
-  auto control_mode_message = k_api::ActuatorConfig::ControlModeInformation();
-  control_mode_message.set_control_mode(k_api::ActuatorConfig::ControlMode::TORQUE);
+  auto control_mode_message = Kinova::Api::ActuatorConfig::ControlModeInformation();
+  control_mode_message.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::TORQUE);
   try
   {
     // Set the base in low-level servoing mode
@@ -39,10 +39,10 @@ EndLowLevelControl(
   Kinova::Api::Base::BaseClient *kinova_client,
   Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client) 
 {
-  auto servoing_mode = k_api::Base::ServoingModeInformation();
-  servoing_mode.set_servoing_mode(k_api::Base::ServoingMode::SINGLE_LEVEL_SERVOING);
-  auto control_mode_message = k_api::ActuatorConfig::ControlModeInformation();
-  control_mode_message.set_control_mode(k_api::ActuatorConfig::ControlMode::Position);
+  auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
+  servoing_mode.set_servoing_mode(Kinova::Api::Base::ServoingMode::SINGLE_LEVEL_SERVOING);
+  auto control_mode_message = Kinova::Api::ActuatorConfig::ControlModeInformation();
+  control_mode_message.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::POSITION);
   try
   {
     // Set the base back to regular servoing mode
@@ -70,7 +70,7 @@ EndLowLevelControl(
 
 KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_base_cyclic_client, 
-  Kinova::Api::Base::BaseClient *kinova_client,
+  Kinova::Api::Base::BaseClient *kinova_base_client,
   Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client
   )
 {
@@ -106,13 +106,15 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   InitializeLowLevelControl(kinova_client_, kinova_actuator_config_client_);
 }
 
-KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface(
+KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
 {
   EndLowLevelControl(kinova_client_, kinova_actuator_config_client_);
 }
 
 void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Duration& period)
 {
+  Kinova::Api::BaseCyclic::Command  base_command;
+
   // TEMP JUST WRIST: for now, just do wrist!
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
@@ -131,7 +133,7 @@ void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Durati
   {
     kinova_cyclic_client_->Refresh(base_command);
   } 
-  catch (k_api::KDetailedException& ex)
+  catch (Kinova::Api::KDetailedException& ex)
   {
     std::cout << "API error: " << ex.what() << std::endl;
     throw; 
@@ -145,14 +147,14 @@ void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Durati
 
 void KinovaGen3HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
 {
-  base_feedback = kinova_cyclic_client_->RefreshFeedback();
+  base_feedback_ = kinova_cyclic_client_->RefreshFeedback();
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     // TEMP JUST WRIST: for now, just do wrist!
     i = 6;
     // END TEMP JUST WRIST
-    pos_[i] = base_feedback.actuators(i).position();
-    vel_[i] = base_feedback.actuators(i).velocity();
-    eff_[i] = base_feedback.actuators(i).torque();
+    pos_[i] = base_feedback_.actuators(i).position();
+    vel_[i] = base_feedback_.actuators(i).velocity();
+    eff_[i] = base_feedback_.actuators(i).torque();
   }
 }

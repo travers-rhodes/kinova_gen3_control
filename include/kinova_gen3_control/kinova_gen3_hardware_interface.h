@@ -2,13 +2,18 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <BaseClientRpc.h>
+#include <BaseCyclicClientRpc.h>
+#include <ActuatorConfigClientRpc.h>
 
 #define NUMBER_OF_JOINTS 1
 
 class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 {
   public:
-    KinovaGen3HardwareInterface(Kinova::Api::BaseCyclicClient *kinova_base_cyclic_client);
+    KinovaGen3HardwareInterface(
+      Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_base_cyclic_client, 
+      Kinova::Api::Base::BaseClient *kinova_base_client,
+      Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client);
     ~KinovaGen3HardwareInterface();
     void write(const ros::Time& time, const ros::Duration& period);
     void read(const ros::Time& time, const ros::Duration& period);
