@@ -5,12 +5,15 @@ InitializeLowLevelControl(
   Kinova::Api::Base::BaseClient *kinova_client,
   Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client) 
 {
+  std::cout << "Initialize low-level control" << std::endl;
+
   auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
   servoing_mode.set_servoing_mode(Kinova::Api::Base::ServoingMode::LOW_LEVEL_SERVOING);
   auto control_mode_message = Kinova::Api::ActuatorConfig::ControlModeInformation();
   control_mode_message.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::TORQUE);
   try
   {
+    std::cout << "Set the servoing mode" << std::endl;
     // Set the base in low-level servoing mode
     kinova_client->SetServoingMode(servoing_mode);
     // Set last actuator in torque mode now that the command is equal to measure
@@ -19,6 +22,7 @@ InitializeLowLevelControl(
       // TEMP JUST WRIST: for now, just do wrist!
       int actuator_device_id = 7;
       // END TEMP JUST WRIST
+      std::cout << "Set the actuator" << std::endl;
       kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id);
     }
   }
@@ -32,6 +36,7 @@ InitializeLowLevelControl(
     std::cout << "Error: " << ex2.what() << std::endl;
     throw;
   }
+  std::cout << "Low-level control initialized" << std::endl;
 }
 
 void
@@ -39,6 +44,7 @@ EndLowLevelControl(
   Kinova::Api::Base::BaseClient *kinova_client,
   Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client) 
 {
+  std::cout << "End low-level control";
   auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
   servoing_mode.set_servoing_mode(Kinova::Api::Base::ServoingMode::SINGLE_LEVEL_SERVOING);
   auto control_mode_message = Kinova::Api::ActuatorConfig::ControlModeInformation();
@@ -66,6 +72,7 @@ EndLowLevelControl(
     std::cout << "Error: " << ex2.what() << std::endl;
     throw;
   }
+  std::cout << "Low-level control ended";
 }
 
 KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
@@ -74,8 +81,19 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client
   )
 {
+
+  // the client to talk to the kinova base at 1KHz
+  kinova_cyclic_client_ = kinova_base_cyclic_client;
+  // the client to talk to the base (slowly)
+  kinova_client_ = kinova_base_client;
+  // the client to talk to the base and configure actuators 
+  kinova_actuator_config_client_ = kinova_actuator_config_client;
+
+  InitializeLowLevelControl(kinova_client_, kinova_actuator_config_client_);
+
+  std::cout << "Register hardware interface" << std::endl;
   std::vector<std::string> joint_names = {
-    "wrist_joint",
+    "joint_7",
   };
 
   // connect and register the joint state interfaces
@@ -90,20 +108,12 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   // connect and register the joint position interfaces
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
-    hardware_interface::JointHandle pos_handle(jnt_state_interface_.getHandle(joint_names[i]), &cmd_[i]);
-    jnt_pos_interface_.registerHandle(pos_handle);
+    hardware_interface::JointHandle eff_handle(jnt_state_interface_.getHandle(joint_names[i]), &cmd_[i]);
+    jnt_eff_interface_.registerHandle(eff_handle);
   }
 
-  registerInterface(&jnt_pos_interface_);
-
-  // the client to talk to the kinova base at 1KHz
-  kinova_cyclic_client_ = kinova_base_cyclic_client;
-  // the client to talk to the base (slowly)
-  kinova_client_ = kinova_base_client;
-  // the client to talk to the base and configure actuators 
-  kinova_actuator_config_client_ = kinova_actuator_config_client;
-
-  InitializeLowLevelControl(kinova_client_, kinova_actuator_config_client_);
+  registerInterface(&jnt_eff_interface_);
+  std::cout << "Hardware interfaces registered" << std::endl;
 }
 
 KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
@@ -116,7 +126,7 @@ void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Durati
   Kinova::Api::BaseCyclic::Command  base_command;
 
   // TEMP JUST WRIST: for now, just do wrist!
-  for (int i = 0; i < NUMBER_OF_JOINTS; i++)
+  for (int i = 0; i < 7; i++)
   {
     // Save the current actuator position, to avoid a following error
     base_command.add_actuators()->set_position(base_feedback_.actuators(i).position());
@@ -153,8 +163,8 @@ void KinovaGen3HardwareInterface::read(const ros::Time& time, const ros::Duratio
     // TEMP JUST WRIST: for now, just do wrist!
     i = 6;
     // END TEMP JUST WRIST
-    pos_[i] = base_feedback_.actuators(i).position();
-    vel_[i] = base_feedback_.actuators(i).velocity();
-    eff_[i] = base_feedback_.actuators(i).torque();
+    pos_[0] = base_feedback_.actuators(i).position();
+    vel_[0] = base_feedback_.actuators(i).velocity();
+    eff_[0] = base_feedback_.actuators(i).torque();
   }
 }

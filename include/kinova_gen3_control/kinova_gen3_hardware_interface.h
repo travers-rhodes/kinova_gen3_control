@@ -5,6 +5,7 @@
 #include <BaseCyclicClientRpc.h>
 #include <ActuatorConfigClientRpc.h>
 
+
 #define NUMBER_OF_JOINTS 1
 
 class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
@@ -23,7 +24,7 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client_; 
 
     hardware_interface::JointStateInterface jnt_state_interface_;
-    hardware_interface::PositionJointInterface jnt_pos_interface_;
+    hardware_interface::EffortJointInterface jnt_eff_interface_;
     // no need to re-create this object every time it's used
     Kinova::Api::BaseCyclic::Feedback base_feedback_;
     double cmd_[NUMBER_OF_JOINTS];

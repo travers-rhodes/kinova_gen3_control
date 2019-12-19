@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <launch>
+  <!-- effort_controllers/joint_position_controller.cpp requires the urdf so that it can apply joint limits and so it knows if requested position should be considered to be mod 2pi -->
+  <param name="robot_description" command="$(find xacro)/xacro $(find kortex_description)/robots/gen3_robotiq_2f_85.xacro sim:=false"/>
+
   <rosparam command="load" file="$(find kinova_gen3_control)/config/kinova_gen3_controllers.yaml"/>
   <node name="kinova_gen3_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" args="joint_state_controller" />
+  <node name="kinova_gen3_hardware_interface_node" pkg="kinova_gen3_control" type="kinova_gen3_control_node" respawn="false"
+    output="screen"/>
 </launch>

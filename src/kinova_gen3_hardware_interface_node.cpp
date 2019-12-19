@@ -12,12 +12,15 @@ int main(int argc, char** argv)
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
+  std::cout << "Creating network connection" << std::endl;
   KinovaGen3NetworkConnection kinova_gen3_connection;
 
+  std::cout << "Creating hardware interface" << std::endl;
   KinovaGen3HardwareInterface robot(kinova_gen3_connection.base_cyclic,
       kinova_gen3_connection.base,
       kinova_gen3_connection.actuator_config);
 
+  std::cout << "Starting hardware manager" << std::endl;
   controller_manager::ControllerManager controller_manager(&robot, nh);
 
   int loop_hz = 100;
