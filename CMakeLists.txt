@@ -7,13 +7,18 @@ project(kinova_gen3_control)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED hardware_interface)
+find_package(catkin REQUIRED 
+  hardware_interface
+  controller_manager
+  roscpp)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
 set(KORTEX_DIR "${PROJECT_SOURCE_DIR}/kortex_api/linux_gcc_x86-64/")
 message("KORTEX_DIR " ${KORTEX_DIR})
+# in order to compile kortex headers, you need to set the architecture through this variable
+add_definitions(-D_OS_UNIX)
 include_directories(${KORTEX_DIR}include)
 include_directories(${KORTEX_DIR}include/client)
 include_directories(${KORTEX_DIR}include/common)
@@ -128,6 +133,7 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
   src/${PROJECT_NAME}/kinova_gen3_hardware_interface.cpp
+  src/${PROJECT_NAME}/kinova_gen3_network_connection.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -138,7 +144,7 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/kinova_gen3_control_node.cpp)
+add_executable(${PROJECT_NAME}_node src/kinova_gen3_hardware_interface_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -148,12 +154,14 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+# Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}_node
+   ${PROJECT_NAME}
+   ${KORTEX_DIR}lib/release/libKortexApi.a
+   ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

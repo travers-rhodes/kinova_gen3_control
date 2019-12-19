@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <rosparam command="load" file="$(find kinova_gen3_control)/config/kinova_gen3_controllers.yaml"/>
+  <node name="kinova_gen3_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="joint_state_controller" />
+</launch>
