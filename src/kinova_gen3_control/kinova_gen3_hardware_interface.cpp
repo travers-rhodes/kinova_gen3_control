@@ -20,11 +20,11 @@ InitializeLowLevelControl(
     // Set last actuator in torque mode now that the command is equal to measure
     for (int i = 0; i < NUMBER_OF_JOINTS; i++)
     {
-      // TEMP JUST WRIST: for now, just do wrist!
-      int actuator_device_id = 7;
+      // TEMP JUST WRIST: for now, just do wrist! Later, switch to 1
+      int actuator_device_id_offset = 6;
       // END TEMP JUST WRIST
       std::cout << "Set the actuator" << std::endl;
-      kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id);
+      kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id_offset + i);
     }
   }
   catch (Kinova::Api::KDetailedException& ex)
@@ -57,10 +57,11 @@ EndLowLevelControl(
     // Set last actuator to position mode 
     for (int i = 0; i < NUMBER_OF_JOINTS; i++)
     {
-      // TEMP JUST WRIST: for now, just do wrist!
-      int actuator_device_id = 7;
+      // TEMP JUST WRIST: for now, just do wrist! Later, switch to 1
+      int actuator_device_id_offset = 6;
       // END TEMP JUST WRIST
-      kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id);
+      std::cout << "Set the actuator" << std::endl;
+      kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id_offset + i);
     }
   }
   catch (Kinova::Api::KDetailedException& ex)
@@ -135,23 +136,24 @@ KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
 
 void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Duration& period)
 {
+  ROS_INFO_THROTTLE(0.5, "Commanded effort of %f, %f", cmd_[0], cmd_[1]);
   Kinova::Api::BaseCyclic::Command  base_command;
   jnt_eff_limit_interface_.enforceLimits(period);
 
-  ROS_INFO_THROTTLE(0.5, "Writing an effort of %f", cmd_[0]);
+  ROS_INFO_THROTTLE(0.5, "Writing an effort of %f, %f", cmd_[0], cmd_[1]);
 
-  // TEMP JUST WRIST: for now, just do wrist!
+  // TEMP? JUST WRIST: for now, just do wrist (really temp?)
   for (int i = 0; i < 7; i++)
   {
     // Save the current actuator position, to avoid a following error
     base_command.add_actuators()->set_position(base_feedback_.actuators(i).position());
   }
-  int relevant_joint = 6;
+  int relevant_id_offset = 5;
   // END TEMP JUST WRIST
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     // TEMP JUST WRIST: relevant_joint will need to change to i
-    base_command.mutable_actuators(relevant_joint)->set_torque_joint(cmd_[i]);
+    base_command.mutable_actuators(relevant_id_offset + i)->set_torque_joint(cmd_[i]);
   }
 
   try
@@ -176,11 +178,11 @@ void KinovaGen3HardwareInterface::read(const ros::Time& time, const ros::Duratio
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     // TEMP JUST WRIST: for now, just do wrist!
-    i = 6;
+    int relevant_id_offset = 5;
     // END TEMP JUST WRIST
-    pos_[0] = angles::from_degrees(base_feedback_.actuators(i).position()); // originally degrees
-    vel_[0] = angles::from_degrees(base_feedback_.actuators(i).velocity()); // originally degrees per second
-    eff_[0] = base_feedback_.actuators(i).torque(); // originally Newton * meters
-    cmd_[0] = eff_[0];
+    pos_[i] = angles::normalize_angle(angles::from_degrees(base_feedback_.actuators(relevant_id_offset + i).position())); // originally degrees
+    vel_[i] = angles::from_degrees(base_feedback_.actuators(relevant_id_offset + i).velocity()); // originally degrees per second
+    eff_[i] = base_feedback_.actuators(relevant_id_offset + i).torque(); // originally Newton * meters
+    cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
   }
 }

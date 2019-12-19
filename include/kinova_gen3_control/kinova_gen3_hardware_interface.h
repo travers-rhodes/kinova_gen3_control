@@ -8,7 +8,7 @@
 #include <joint_limits_interface/joint_limits_interface.h>
 
 
-#define NUMBER_OF_JOINTS 1
+#define NUMBER_OF_JOINTS 2
 
 class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 {

@@ -28,7 +28,8 @@ int main(int argc, char** argv)
 
   std::cout << "Creating hardware interface" << std::endl;
   std::vector<std::string> joint_names = {
-    "joint_7",
+    "joint_6",
+    "joint_7"
   };
   std::vector<joint_limits_interface::JointLimits> limits_list;
   for (int i = 0; i < joint_names.size(); i++)
