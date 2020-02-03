@@ -28,6 +28,8 @@ int main(int argc, char** argv)
 
   std::cout << "Creating hardware interface" << std::endl;
   std::vector<std::string> joint_names = {
+    "joint_1",
+    "joint_2",
     "joint_3",
     "joint_4",
     "joint_5",

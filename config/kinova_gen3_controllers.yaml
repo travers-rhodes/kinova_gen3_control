@@ -31,7 +31,7 @@ gen3_joint_trajectory_controller:
 joint_1_position_controller:
     joint: joint_1
     pid:
-        p: 10.0
+        p: 100.0
         i: 0.0
         d: 0.0
     type: effort_controllers/JointPositionController
@@ -39,7 +39,7 @@ joint_1_position_controller:
 joint_2_position_controller:
     joint: joint_2
     pid:
-        p: 10.0
+        p: 100.0
         i: 0.0
         d: 0.0
     type: effort_controllers/JointPositionController
