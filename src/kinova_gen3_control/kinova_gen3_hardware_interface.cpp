@@ -21,7 +21,7 @@ InitializeLowLevelControl(
     for (int i = 0; i < NUMBER_OF_JOINTS; i++)
     {
       // TEMP JUST WRIST: for now, just do wrist! Later, switch to 1
-      int actuator_device_id_offset = 5;
+      int actuator_device_id_offset = 3;
       // END TEMP JUST WRIST
       std::cout << "Set the actuator" << std::endl;
       kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id_offset + i);
@@ -58,7 +58,7 @@ EndLowLevelControl(
     for (int i = 0; i < NUMBER_OF_JOINTS; i++)
     {
       // TEMP JUST WRIST: for now, just do wrist! Later, switch to 1
-      int actuator_device_id_offset = 5;
+      int actuator_device_id_offset = 3;
       // END TEMP JUST WRIST
       std::cout << "Set the actuator" << std::endl;
       kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id_offset + i);
@@ -148,7 +148,7 @@ void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Durati
     // Save the current actuator position, to avoid a following error
     base_command.add_actuators()->set_position(base_feedback_.actuators(i).position());
   }
-  int relevant_id_offset = 4;
+  int relevant_id_offset = 2;
   // END TEMP JUST WRIST
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
@@ -179,7 +179,7 @@ void KinovaGen3HardwareInterface::read(const ros::Time& time, const ros::Duratio
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     // TEMP JUST WRIST: for now, just do wrist!
-    int relevant_id_offset = 4;
+    int relevant_id_offset = 2;
     // END TEMP JUST WRIST
     pos_[i] = angles::normalize_angle(angles::from_degrees(base_feedback_.actuators(relevant_id_offset + i).position())); // originally degrees
     vel_[i] = angles::from_degrees(base_feedback_.actuators(relevant_id_offset + i).velocity()); // originally degrees per second
