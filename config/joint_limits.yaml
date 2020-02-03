@@ -1,4 +1,10 @@
 joint_limits:
+  joint_5:
+    has_velocity_limits: true
+    max_velocity: 1.0
+    has_effort_limits: true
+    max_effort: 3.0
+
   joint_6:
     has_velocity_limits: true
     max_velocity: 1.0

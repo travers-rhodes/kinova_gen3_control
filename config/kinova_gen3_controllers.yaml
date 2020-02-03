@@ -63,9 +63,10 @@ joint_4_position_controller:
 joint_5_position_controller:
     joint: joint_5
     pid:
-        p: 50.0
-        i: 0.0
-        d: 0.2
+        p: 10.0
+        i: 1
+        d: 0.0
+        i_clamp: 200
     type: effort_controllers/JointPositionController
 
 joint_6_position_controller:
