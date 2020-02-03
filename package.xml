@@ -31,6 +31,7 @@
   <depend>urdf</depend>
   <depend>roscpp</depend>
   <depend>xacro</depend>
+  <depend>ros-controllers</depend>
   <buildtool_depend>catkin</buildtool_depend>
 
 
