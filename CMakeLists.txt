@@ -10,14 +10,18 @@ set (CMAKE_CXX_STANDARD 11)
 find_package(catkin REQUIRED 
   urdf
   hardware_interface
+  joint_limits_interface 
   controller_manager
+  angles
   roscpp)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
 set(KORTEX_DIR "${PROJECT_SOURCE_DIR}/kortex_api/linux_gcc_x86-64/")
-message("KORTEX_DIR " ${KORTEX_DIR})
+if(NOT EXISTS ${KORTEX_DIR})
+  message("Please download the kortex_api and copy include and lib files to: " ${KORTEX_DIR})
+endif()
 # in order to compile kortex headers, you need to set the architecture through this variable
 add_definitions(-D_OS_UNIX)
 include_directories(${KORTEX_DIR}include)

@@ -27,8 +27,10 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <depend>hardware_interface</depend>
   <depend>controller_manager</depend>
+  <depend>joint_limits_interface</depend>
   <depend>urdf</depend>
   <depend>roscpp</depend>
+  <depend>xacro</depend>
   <buildtool_depend>catkin</buildtool_depend>
 
 
