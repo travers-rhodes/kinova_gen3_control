@@ -146,8 +146,6 @@ void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Durati
 
   Kinova::Api::BaseCyclic::Command  base_command;
   jnt_eff_limit_interface_.enforceLimits(period);
-  
-  cmd_[0] = 0.5; // TEMP just for learning directions of spinny spin
 
   if (NUMBER_OF_JOINTS == 7)
   {
