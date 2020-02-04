@@ -141,11 +141,13 @@ void KinovaGen3HardwareInterface::write(const ros::Time& time, const ros::Durati
   }
   else
   {
-    ROS_DEBUG_THROTTLE(0.05, "Commanded effort of %f", cmd_[0]);
+   // ROS_DEBUG_THROTTLE(0.05, "Commanded effort of %f", cmd_[0]);
   }
 
   Kinova::Api::BaseCyclic::Command  base_command;
   jnt_eff_limit_interface_.enforceLimits(period);
+  
+  cmd_[0] = 0.5; // TEMP just for learning directions of spinny spin
 
   if (NUMBER_OF_JOINTS == 7)
   {
@@ -197,9 +199,11 @@ void KinovaGen3HardwareInterface::read(const ros::Time& time, const ros::Duratio
     // Note that actuators is a 0-indexed array
     pos_[i] = angles::normalize_angle(angles::from_degrees(base_feedback_.actuators(i + array_index_offset).position())); // originally degrees
     vel_[i] = angles::from_degrees(base_feedback_.actuators(i + array_index_offset).velocity()); // originally degrees per second
-    eff_[i] = base_feedback_.actuators(i + array_index_offset).torque(); // originally Newton * meters
+    // NOTA BENE: FOR NO APPARENT REASON kinova multiplies the _READ_ torque by negative one
+    // By doing this negative one, you can then send the effort right back as a torque command...
+    // I AGREE that this makes no sense.
+    eff_[i] = -base_feedback_.actuators(i + array_index_offset).torque(); // originally Newton * meters
     cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
-    cmd_[i] = 0.1; // TEMP just for learning directions of spinny spin
   }
   
   if (NUMBER_OF_JOINTS == 7)
@@ -208,6 +212,6 @@ void KinovaGen3HardwareInterface::read(const ros::Time& time, const ros::Duratio
   }
   else
   {
-    ROS_DEBUG_THROTTLE(0.05, "Read an effort of %f", cmd_[0]);
+    ROS_DEBUG_THROTTLE(0.05, "Read effort %03.4f, vel %03.4f, pos %03.4f", cmd_[0], vel_[0], pos_[0]);
   }
 }
