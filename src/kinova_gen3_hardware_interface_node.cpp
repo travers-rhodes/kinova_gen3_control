@@ -77,31 +77,37 @@ int main(int argc, char** argv)
   double update_time_secs = 0;
   double write_time_secs = 0;
   double sleep_time_secs = 0;
+  ros::Duration controller_manager_loop_duration;
   ros::Time start = ros::Time::now();
   ros::Time stop = ros::Time::now();
   current = ros::Time::now();
+  previous = current;
   while (ros::ok())
   {
-    previous = current;
-    start = current;
-    robot.read(current, current-previous);
+    start = stop;
+    robot.read();
     stop = ros::Time::now();
     read_time_secs = (stop-start).toSec();
+
     start = stop;
-    controller_manager.update(current, current-previous);
+    current = ros::Time::now();
+    controller_manager_loop_duration = current-previous;
+    controller_manager.update(current, controller_manager_loop_duration);
+    previous = current;
     stop = ros::Time::now();
     update_time_secs = (stop-start).toSec();
+
     start = stop;
-    robot.write(current, current-previous);
+    robot.write(controller_manager_loop_duration);
     stop = ros::Time::now();
     write_time_secs = (stop-start).toSec();
+
     start = stop;
     update_freq.sleep();
     stop = ros::Time::now();
     sleep_time_secs = (stop-start).toSec();
-    current = ros::Time::now();
-    loop_time_secs = (current-previous).toSec();
+
     ROS_WARN_THROTTLE(0.1, "Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
-		    loop_time_secs, read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
+		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
   }
 }

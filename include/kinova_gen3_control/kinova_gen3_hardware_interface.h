@@ -24,8 +24,8 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
       Kinova::Api::Base::BaseClient *kinova_base_client,
       Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client);
     ~KinovaGen3HardwareInterface();
-    void write(const ros::Time& time, const ros::Duration& period);
-    void read(const ros::Time& time, const ros::Duration& period);
+    void write(const ros::Duration& period);
+    void read();
   private:
     Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_cyclic_client_; 
     Kinova::Api::Base::BaseClient *kinova_client_; 
