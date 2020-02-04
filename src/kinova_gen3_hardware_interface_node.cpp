@@ -73,18 +73,35 @@ int main(int argc, char** argv)
 
   ROS_INFO("Entering ros_control loop");
   double loop_time_secs = 0;
+  double read_time_secs = 0;
+  double update_time_secs = 0;
+  double write_time_secs = 0;
+  double sleep_time_secs = 0;
+  ros::Time start = ros::Time::now();
+  ros::Time stop = ros::Time::now();
+  current = ros::Time::now();
   while (ros::ok())
   {
-    current = ros::Time::now();
-    robot.read(current, current-previous);
-    controller_manager.update(current, current-previous);
-    robot.write(current, current-previous);
-    loop_time_secs = (current-previous).toSec();
-    if (loop_time_secs > 1.0/loop_hz)
-    {
-      ROS_WARN_THROTTLE(0.1, "ros_control loop took %f seconds to loop", loop_time_secs);
-    }
     previous = current;
+    start = current;
+    robot.read(current, current-previous);
+    stop = ros::Time::now();
+    read_time_secs = (stop-start).toSec();
+    start = stop;
+    controller_manager.update(current, current-previous);
+    stop = ros::Time::now();
+    update_time_secs = (stop-start).toSec();
+    start = stop;
+    robot.write(current, current-previous);
+    stop = ros::Time::now();
+    write_time_secs = (stop-start).toSec();
+    start = stop;
     update_freq.sleep();
+    stop = ros::Time::now();
+    sleep_time_secs = (stop-start).toSec();
+    current = ros::Time::now();
+    loop_time_secs = (current-previous).toSec();
+    ROS_WARN_THROTTLE(0.1, "Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
+		    loop_time_secs, read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
   }
 }
