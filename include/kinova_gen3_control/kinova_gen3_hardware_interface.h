@@ -8,7 +8,12 @@
 #include <joint_limits_interface/joint_limits_interface.h>
 
 
-#define NUMBER_OF_JOINTS 7
+// 1-indexed first and last joint indices
+// When not testing individual joints, these should be 1 and 7
+#define FIRST_JOINT_INDEX 7
+#define LAST_JOINT_INDEX 7
+// When not testing individual joints, this should be 7
+#define NUMBER_OF_JOINTS 1
 
 class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 {

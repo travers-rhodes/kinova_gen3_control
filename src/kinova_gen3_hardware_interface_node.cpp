@@ -23,10 +23,10 @@ int main(int argc, char** argv)
   // TODO don't hard-code this string
   urdf_robot.initParam("robot_description");
 
-  std::cout << "Creating network connection" << std::endl;
+  ROS_INFO("Creating network connection");
   KinovaGen3NetworkConnection kinova_gen3_connection;
 
-  std::cout << "Creating hardware interface" << std::endl;
+  ROS_INFO("Creating hardware interface");
   std::vector<std::string> joint_names = {
     "joint_1",
     "joint_2",
@@ -56,8 +56,9 @@ int main(int argc, char** argv)
       kinova_gen3_connection.base,
       kinova_gen3_connection.actuator_config);
 
-  std::cout << "Starting hardware manager" << std::endl;
+  ROS_INFO("Starting controller manager");
   controller_manager::ControllerManager controller_manager(&robot, nh);
+  ROS_INFO("Controller manager started");
 
   int loop_hz = 1000;
   ros::Duration update_freq = ros::Duration(1.0/loop_hz);
@@ -66,19 +67,22 @@ int main(int argc, char** argv)
 
   while (ros::Time::now().toSec() == 0)
   {
-    std::cout << "waiting for clock to publish";
+    ROS_INFO_THROTTLE(0.5, "Waiting for clock to publish");
     update_freq.sleep();
   }
 
+  ROS_INFO("Entering ros_control loop");
   while (ros::ok())
   {
     current = ros::Time::now();
     robot.read(current, current-previous);
     controller_manager.update(current, current-previous);
-    robot.write(current, current-previous); 
+    robot.write(current, current-previous);
+    if ((current-previous).toSec() > 2.0/loop_hz)
+    {
+      ROS_WARN_THROTTLE(1.0, "ros_control loop took more than %f seconds to loop", 2.0/loop_hz);
+    }
     previous = current;
     update_freq.sleep();
   }
 }
-
-
