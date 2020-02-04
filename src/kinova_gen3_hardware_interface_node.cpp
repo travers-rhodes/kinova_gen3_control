@@ -109,7 +109,7 @@ int main(int argc, char** argv)
     stop = ros::Time::now();
     sleep_time_secs = (stop-start).toSec();
 
-    ROS_WARN_THROTTLE(0.1, "Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
+    ROS_DEBUG_THROTTLE(0.1, "Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
 		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
   }
 }
