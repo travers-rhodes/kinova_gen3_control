@@ -137,11 +137,11 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 {
   if (NUMBER_OF_JOINTS == 7)
   {
-    ROS_DEBUG_THROTTLE(0.05, "Commanded effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
+    ROS_DEBUG_THROTTLE(1, "Commanded effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
   }
   else
   {
-   ROS_DEBUG_THROTTLE(0.05, "Commanded effort of %f", cmd_[0]);
+   ROS_DEBUG_THROTTLE(1, "Commanded effort of %f", cmd_[0]);
   }
 
   Kinova::Api::BaseCyclic::Command  base_command;
@@ -149,11 +149,11 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 
   if (NUMBER_OF_JOINTS == 7)
   {
-    ROS_DEBUG_THROTTLE(0.05, "Writing an effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
+    ROS_DEBUG_THROTTLE(1, "Writing an effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
   }
   else
   {
-    ROS_DEBUG_THROTTLE(0.05, "Writing an effort of %f", cmd_[0]);
+    ROS_DEBUG_THROTTLE(1, "Writing an effort of %f", cmd_[0]);
   }
 
 
@@ -206,10 +206,10 @@ void KinovaGen3HardwareInterface::read()
   
   if (NUMBER_OF_JOINTS == 7)
   {
-    ROS_DEBUG_THROTTLE(0.05, "Read an effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
+    ROS_DEBUG_THROTTLE(1, "Read an effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
   }
   else
   {
-    ROS_DEBUG_THROTTLE(0.05, "Read effort %03.4f, vel %03.4f, pos %03.4f", cmd_[0], vel_[0], pos_[0]);
+    ROS_DEBUG_THROTTLE(1, "Read effort %03.4f, vel %03.4f, pos %03.4f", cmd_[0], vel_[0], pos_[0]);
   }
 }

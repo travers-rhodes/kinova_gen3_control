@@ -82,6 +82,8 @@ int main(int argc, char** argv)
   ros::Time stop = ros::Time::now();
   current = ros::Time::now();
   previous = current;
+  // use a Rate loop to only sleep if we're faster than 1kHz (we generally aren't)
+  ros::Rate loop_rate(update_freq);
   while (ros::ok())
   {
     start = stop;
@@ -103,7 +105,7 @@ int main(int argc, char** argv)
     write_time_secs = (stop-start).toSec();
 
     start = stop;
-    update_freq.sleep();
+    loop_rate.sleep();
     stop = ros::Time::now();
     sleep_time_secs = (stop-start).toSec();
 
