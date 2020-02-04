@@ -72,15 +72,17 @@ int main(int argc, char** argv)
   }
 
   ROS_INFO("Entering ros_control loop");
+  double loop_time_secs = 0;
   while (ros::ok())
   {
     current = ros::Time::now();
     robot.read(current, current-previous);
     controller_manager.update(current, current-previous);
     robot.write(current, current-previous);
-    if ((current-previous).toSec() > 2.0/loop_hz)
+    loop_time_secs = (current-previous).toSec();
+    if (loop_time_secs > 1.0/loop_hz)
     {
-      ROS_WARN_THROTTLE(1.0, "ros_control loop took more than %f seconds to loop", 2.0/loop_hz);
+      ROS_WARN_THROTTLE(0.1, "ros_control loop took %f seconds to loop", loop_time_secs);
     }
     previous = current;
     update_freq.sleep();
