@@ -7,6 +7,8 @@
 
 #include <joint_limits_interface/joint_limits_interface.h>
 
+#include <kinova_gen3_control/kinova_network_connection.h>
+
 
 // 1-indexed first and last joint indices
 // When not testing individual joints, this should be 1
@@ -20,16 +22,12 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     KinovaGen3HardwareInterface(
       std::vector<std::string> joint_names,
       std::vector<joint_limits_interface::JointLimits> limits,
-      Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_base_cyclic_client, 
-      Kinova::Api::Base::BaseClient *kinova_base_client,
-      Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client);
+      KinovaNetworkConnection* network_connection);
     ~KinovaGen3HardwareInterface();
     void write(const ros::Duration& period);
     void read();
   private:
-    Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_cyclic_client_; 
-    Kinova::Api::Base::BaseClient *kinova_client_; 
-    Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client_; 
+    KinovaNetworkConnection* network_connection_;
 
     std::vector<std::string> joint_names_;
     std::vector<joint_limits_interface::JointLimits> limits_;

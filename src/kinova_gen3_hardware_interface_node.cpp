@@ -52,9 +52,7 @@ int main(int argc, char** argv)
   KinovaGen3HardwareInterface robot(
       joint_names,
       limits_list,
-      kinova_gen3_connection.base_cyclic,
-      kinova_gen3_connection.base,
-      kinova_gen3_connection.actuator_config);
+      &kinova_gen3_connection);
 
   ROS_INFO("Starting controller manager");
   controller_manager::ControllerManager controller_manager(&robot, nh);

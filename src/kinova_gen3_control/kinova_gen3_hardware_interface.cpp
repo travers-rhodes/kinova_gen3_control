@@ -2,9 +2,7 @@
 #include "angles/angles.h"
 
 void
-InitializeLowLevelControl(
-  Kinova::Api::Base::BaseClient *kinova_client,
-  Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client) 
+InitializeLowLevelControl(KinovaNetworkConnection* network_connection)
 {
   std::cout << "Initialize low-level control" << std::endl;
 
@@ -16,14 +14,14 @@ InitializeLowLevelControl(
   {
     ROS_INFO("Set the servoing mode");
     // Set the base in low-level servoing mode
-    kinova_client->SetServoingMode(servoing_mode);
+    network_connection->BaseSetServoingMode(servoing_mode);
     // Set last actuator in torque mode now that the command is equal to measure
     for (int i = 0; i < NUMBER_OF_JOINTS; i++)
     {
       // actuator_device_id is one-indexed
       int actuator_device_id_offset = FIRST_JOINT_INDEX;
       ROS_INFO("Set actuator %d control mode to low-level servoing", actuator_device_id_offset + i);
-      kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id_offset + i);
+      network_connection->ActuatorSetControlMode(control_mode_message, actuator_device_id_offset + i);
     }
   }
   catch (Kinova::Api::KDetailedException& ex)
@@ -40,9 +38,7 @@ InitializeLowLevelControl(
 }
 
 void
-EndLowLevelControl(
-  Kinova::Api::Base::BaseClient *kinova_client,
-  Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client) 
+EndLowLevelControl(KinovaNetworkConnection* network_connection)
 {
   ROS_INFO("End low-level control");
   auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
@@ -52,14 +48,14 @@ EndLowLevelControl(
   try
   {
     // Set the base back to regular servoing mode
-    kinova_client->SetServoingMode(servoing_mode);
+    network_connection->BaseSetServoingMode(servoing_mode);
     // Set the actuators to position mode 
     for (int i = 0; i < NUMBER_OF_JOINTS; i++)
     {
       // actuator_device_id is one-indexed
       int actuator_device_id_offset = FIRST_JOINT_INDEX;
       ROS_INFO("Set actuator %d control mode to position control", actuator_device_id_offset + i);
-      kinova_actuator_config_client->SetControlMode(control_mode_message, actuator_device_id_offset + i);
+      network_connection->ActuatorSetControlMode(control_mode_message, actuator_device_id_offset + i);
     }
   }
   catch (Kinova::Api::KDetailedException& ex)
@@ -78,20 +74,11 @@ EndLowLevelControl(
 KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   std::vector<std::string> joint_names,
   std::vector<joint_limits_interface::JointLimits> limits,
-  Kinova::Api::BaseCyclic::BaseCyclicClient *kinova_base_cyclic_client, 
-  Kinova::Api::Base::BaseClient *kinova_base_client,
-  Kinova::Api::ActuatorConfig::ActuatorConfigClient *kinova_actuator_config_client
-  ) : joint_names_(joint_names), limits_(limits)
+  KinovaNetworkConnection *network_connection) : joint_names_(joint_names), limits_(limits)
 {
+  network_connection_ = network_connection;
 
-  // the client to talk to the kinova base at 1KHz
-  kinova_cyclic_client_ = kinova_base_cyclic_client;
-  // the client to talk to the base (slowly)
-  kinova_client_ = kinova_base_client;
-  // the client to talk to the base and configure actuators 
-  kinova_actuator_config_client_ = kinova_actuator_config_client;
-
-  InitializeLowLevelControl(kinova_client_, kinova_actuator_config_client_);
+  InitializeLowLevelControl(network_connection_);
 
   ROS_INFO("Register hardware interface");
 
@@ -130,7 +117,7 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
 
 KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
 {
-  EndLowLevelControl(kinova_client_, kinova_actuator_config_client_);
+  EndLowLevelControl(network_connection_);
 }
 
 void KinovaGen3HardwareInterface::write(const ros::Duration& period)
@@ -173,7 +160,7 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 
   try
   {
-    kinova_cyclic_client_->Refresh(base_command);
+    network_connection_->CyclicRefresh(base_command);
   } 
   catch (Kinova::Api::KDetailedException& ex)
   {
@@ -189,7 +176,7 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 
 void KinovaGen3HardwareInterface::read()
 {
-  base_feedback_ = kinova_cyclic_client_->RefreshFeedback();
+  base_feedback_ = network_connection_->CyclicRefreshFeedback();
 
   int array_index_offset = FIRST_JOINT_INDEX - 1;
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)

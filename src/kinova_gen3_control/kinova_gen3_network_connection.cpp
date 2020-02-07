@@ -34,9 +34,9 @@ KinovaGen3NetworkConnection::KinovaGen3NetworkConnection()
   std::cout << "Sessions created" << std::endl;
  
   // create these objects after session initialized 
-  actuator_config = new Kinova::Api::ActuatorConfig::ActuatorConfigClient(router_);
-  base = new Kinova::Api::Base::BaseClient(router_);
-  base_cyclic = new Kinova::Api::BaseCyclic::BaseCyclicClient(router_cyclic_);
+  actuator_config_ = new Kinova::Api::ActuatorConfig::ActuatorConfigClient(router_);
+  base_ = new Kinova::Api::Base::BaseClient(router_);
+  base_cyclic_ = new Kinova::Api::BaseCyclic::BaseCyclicClient(router_cyclic_);
 }
 
 KinovaGen3NetworkConnection::~KinovaGen3NetworkConnection() 
@@ -59,9 +59,29 @@ KinovaGen3NetworkConnection::~KinovaGen3NetworkConnection()
   delete router_cyclic_;
   delete session_manager_;
   delete session_manager_cyclic_;
-  delete actuator_config;
-  delete base;
-  delete base_cyclic;
+  delete actuator_config_;
+  delete base_;
+  delete base_cyclic_;
 
   std::cout << "Done cleaning up network connection to Kinova" << std::endl;
+}
+    
+void KinovaGen3NetworkConnection::BaseSetServoingMode(const Kinova::Api::Base::ServoingModeInformation& servoing_mode)
+{
+  base_->SetServoingMode(servoing_mode);
+}
+
+void KinovaGen3NetworkConnection::ActuatorSetControlMode(const Kinova::Api::ActuatorConfig::ControlModeInformation& servoing_mode, int actuator_device_id)
+{
+  actuator_config_->SetControlMode(servoing_mode, actuator_device_id);
+}
+
+void KinovaGen3NetworkConnection::CyclicRefresh(const Kinova::Api::BaseCyclic::Command& base_command)
+{
+  base_cyclic_->Refresh(base_command);
+}
+
+Kinova::Api::BaseCyclic::Feedback KinovaGen3NetworkConnection::CyclicRefreshFeedback()
+{
+  return(base_cyclic_->RefreshFeedback());
 }
