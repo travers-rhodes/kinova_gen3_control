@@ -20,7 +20,7 @@ find_package(catkin REQUIRED
 
 set(KORTEX_DIR "${PROJECT_SOURCE_DIR}/kortex_api/linux_gcc_x86-64/")
 if(NOT EXISTS ${KORTEX_DIR})
-  message("Please download the kortex_api and copy include and lib files to: " ${KORTEX_DIR})
+  message(FATAL_ERROR "Please download the kortex_api and copy include and lib files to: ${KORTEX_DIR} More information is available in the kinova_gen3_control/kortex_api/README.txt file")
 endif()
 # in order to compile kortex headers, you need to set the architecture through this variable
 add_definitions(-D_OS_UNIX)
