@@ -139,6 +139,7 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/${PROJECT_NAME}/kinova_gen3_hardware_interface.cpp
   src/${PROJECT_NAME}/kinova_gen3_network_connection.cpp
+  src/${PROJECT_NAME}/fake_kinova_network_connection.cpp
 )
 
 ## Add cmake target dependencies of the library

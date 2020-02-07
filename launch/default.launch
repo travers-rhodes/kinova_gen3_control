@@ -21,5 +21,7 @@
     output="screen" args="spawn $(arg controllers_to_spawn)"/>
 
   <node machine="control-computer" name="kinova_gen3_hardware_interface_node" pkg="kinova_gen3_control" type="kinova_gen3_control_node" respawn="false"
-    output="screen"/>
+    output="screen">
+    <param name="fake_connection" value="true"/>
+  </node>
 </launch>

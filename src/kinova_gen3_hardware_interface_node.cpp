@@ -8,12 +8,13 @@
 
 #include "kinova_gen3_control/kinova_gen3_hardware_interface.h"
 #include "kinova_gen3_control/kinova_gen3_network_connection.h"
+#include "kinova_gen3_control/fake_kinova_network_connection.h"
 
 //https://slaterobots.com/blog/5abd8a1ed4442a651de5cb5b/how-to-implement-ros_control-on-a-custom-robot
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "kinova_gen3_hardware_interface");
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
@@ -23,8 +24,20 @@ int main(int argc, char** argv)
   // TODO don't hard-code this string
   urdf_robot.initParam("robot_description");
 
-  ROS_INFO("Creating network connection");
-  KinovaGen3NetworkConnection kinova_gen3_connection;
+  bool fake_connection;
+  nh.getParam("fake_connection", fake_connection);
+
+  KinovaNetworkConnection* network_connection;
+  if (fake_connection)
+  {
+    ROS_INFO("Creating fake network connection");
+    network_connection = new FakeKinovaNetworkConnection(); 
+  }
+  else 
+  {
+    ROS_INFO("Creating real network connection");
+    network_connection = new KinovaGen3NetworkConnection(); 
+  }
 
   ROS_INFO("Creating hardware interface");
   std::vector<std::string> joint_names = {
@@ -52,7 +65,7 @@ int main(int argc, char** argv)
   KinovaGen3HardwareInterface robot(
       joint_names,
       limits_list,
-      &kinova_gen3_connection);
+      network_connection);
 
   ROS_INFO("Starting controller manager");
   controller_manager::ControllerManager controller_manager(&robot, nh);
@@ -114,4 +127,5 @@ int main(int argc, char** argv)
 		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
     }
   }
+  delete network_connection;
 }
