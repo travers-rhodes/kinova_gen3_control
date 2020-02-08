@@ -14,7 +14,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "kinova_gen3_hardware_interface");
-  ros::NodeHandle nh("~");
+  ros::NodeHandle private_nh("~");
+  ros::NodeHandle nh;
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
@@ -25,7 +26,7 @@ int main(int argc, char** argv)
   urdf_robot.initParam("robot_description");
 
   bool fake_connection;
-  nh.getParam("fake_connection", fake_connection);
+  private_nh.getParam("fake_connection", fake_connection);
 
   std::shared_ptr<KinovaNetworkConnection> network_connection;
   if (fake_connection)
@@ -54,11 +55,11 @@ int main(int argc, char** argv)
   {
     joint_limits_interface::JointLimits limits;
     std::shared_ptr<const urdf::Joint> urdf_joint = urdf_robot.getJoint(joint_names[i]);
-    const bool urdf_limits_ok = getJointLimits(urdf_joint, limits);
+    const bool urdf_limits_ok = joint_limits_interface::getJointLimits(urdf_joint, limits);
     // Populate joint limits from the ros parameter server
     // Limits specified in the parameter server overwrite existing values in 'limits' 
     // Limits not specified in the parameter server preserve their existing values
-    const bool rosparam_limits_ok = getJointLimits(joint_names[i], nh, limits);
+    const bool rosparam_limits_ok = joint_limits_interface::getJointLimits(joint_names[i], nh, limits);
     limits_list.push_back(limits);
   }
 
