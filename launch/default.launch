@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="fake_connection" default="false"/>
   <!-- effort_controllers/joint_position_controller.cpp requires the urdf so that it can apply joint limits and so it knows if requested position should be considered to be mod 2pi -->
   <param name="robot_description" command="$(find xacro)/xacro $(find kortex_description)/robots/gen3_robotiq_2f_85.xacro sim:=false"/>
   <!-- load joint limits from param file (overwriting associated limits in URDF)-->
@@ -22,6 +23,6 @@
 
   <node machine="control-computer" name="kinova_gen3_hardware_interface_node" pkg="kinova_gen3_control" type="kinova_gen3_control_node" respawn="false"
     output="screen">
-    <param name="fake_connection" value="true"/>
+    <param name="fake_connection" value="$(arg fake_connection)"/>
   </node>
 </launch>

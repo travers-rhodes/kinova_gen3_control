@@ -8,7 +8,7 @@ FakeKinovaNetworkConnection::FakeKinovaNetworkConnection()
 FakeKinovaNetworkConnection::~FakeKinovaNetworkConnection() 
 {
   ROS_DEBUG("FakeNetwork: Destroying connection");
-  std::cout << "THE DESTRUCTOR WAS INDEED CALLED" << std::endl;
+  std::cout << "FakeNetwork: Destroying connection" << std::endl;
 }
 
 void FakeKinovaNetworkConnection::BaseSetServoingMode(const Kinova::Api::Base::ServoingModeInformation& servoing_mode)
