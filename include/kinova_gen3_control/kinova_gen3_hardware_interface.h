@@ -1,3 +1,6 @@
+#ifndef KINOVA_GEN3_HARDWARE_INTERFACE_H 
+#define KINOVA_GEN3_HARDWARE_INTERFACE_H 
+
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -26,8 +29,6 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     ~KinovaGen3HardwareInterface();
     void write(const ros::Duration& period);
     void read();
-  private:
-    KinovaNetworkConnection* network_connection_;
 
   private:
     std::shared_ptr<KinovaNetworkConnection> network_connection_;
@@ -43,3 +44,4 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     double vel_[NUMBER_OF_JOINTS];
     double eff_[NUMBER_OF_JOINTS];
 };
+#endif // KINOVA_GEN3_HARDWARE_INTERFACE_H 
