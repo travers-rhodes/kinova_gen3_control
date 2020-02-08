@@ -16,6 +16,7 @@
 class KinovaNetworkConnection
 {
   public:
+    virtual ~KinovaNetworkConnection() {};
     // you must construct these methods in your implementation
     virtual void BaseSetServoingMode(const Kinova::Api::Base::ServoingModeInformation& servoing_mode) = 0;
     virtual void ActuatorSetControlMode(const Kinova::Api::ActuatorConfig::ControlModeInformation& servoing_mode, int actuator_device_id) = 0;

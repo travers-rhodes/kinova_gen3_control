@@ -1,5 +1,16 @@
 #include <kinova_gen3_control/fake_kinova_network_connection.h>
 
+FakeKinovaNetworkConnection::FakeKinovaNetworkConnection() 
+{
+  ROS_DEBUG("FakeNetwork: Creating connection");
+}
+
+FakeKinovaNetworkConnection::~FakeKinovaNetworkConnection() 
+{
+  ROS_DEBUG("FakeNetwork: Destroying connection");
+  std::cout << "THE DESTRUCTOR WAS INDEED CALLED" << std::endl;
+}
+
 void FakeKinovaNetworkConnection::BaseSetServoingMode(const Kinova::Api::Base::ServoingModeInformation& servoing_mode)
 {
   ROS_DEBUG("FakeNetwork: Setting Servoing Mode");

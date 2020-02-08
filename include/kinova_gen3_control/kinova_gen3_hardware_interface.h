@@ -22,13 +22,15 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     KinovaGen3HardwareInterface(
       std::vector<std::string> joint_names,
       std::vector<joint_limits_interface::JointLimits> limits,
-      KinovaNetworkConnection* network_connection);
+      std::shared_ptr<KinovaNetworkConnection> network_connection);
     ~KinovaGen3HardwareInterface();
     void write(const ros::Duration& period);
     void read();
   private:
     KinovaNetworkConnection* network_connection_;
 
+  private:
+    std::shared_ptr<KinovaNetworkConnection> network_connection_;
     std::vector<std::string> joint_names_;
     std::vector<joint_limits_interface::JointLimits> limits_;
     hardware_interface::JointStateInterface jnt_state_interface_;

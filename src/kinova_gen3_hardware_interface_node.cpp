@@ -27,16 +27,16 @@ int main(int argc, char** argv)
   bool fake_connection;
   nh.getParam("fake_connection", fake_connection);
 
-  KinovaNetworkConnection* network_connection;
+  std::shared_ptr<KinovaNetworkConnection> network_connection;
   if (fake_connection)
   {
     ROS_INFO("Creating fake network connection");
-    network_connection = new FakeKinovaNetworkConnection(); 
+    network_connection = std::make_shared<FakeKinovaNetworkConnection>(); 
   }
   else 
   {
     ROS_INFO("Creating real network connection");
-    network_connection = new KinovaGen3NetworkConnection(); 
+    network_connection = std::make_shared<KinovaGen3NetworkConnection>(); 
   }
 
   ROS_INFO("Creating hardware interface");
@@ -127,5 +127,4 @@ int main(int argc, char** argv)
 		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
     }
   }
-  delete network_connection;
 }

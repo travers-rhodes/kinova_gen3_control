@@ -2,7 +2,7 @@
 #include "angles/angles.h"
 
 void
-InitializeLowLevelControl(KinovaNetworkConnection* network_connection)
+InitializeLowLevelControl(std::shared_ptr<KinovaNetworkConnection> network_connection)
 {
   std::cout << "Initialize low-level control" << std::endl;
 
@@ -38,9 +38,10 @@ InitializeLowLevelControl(KinovaNetworkConnection* network_connection)
 }
 
 void
-EndLowLevelControl(KinovaNetworkConnection* network_connection)
+EndLowLevelControl(std::shared_ptr<KinovaNetworkConnection> network_connection)
 {
   ROS_INFO("End low-level control");
+  std::cout << "End low-level control" << std::endl;
   auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
   servoing_mode.set_servoing_mode(Kinova::Api::Base::ServoingMode::SINGLE_LEVEL_SERVOING);
   auto control_mode_message = Kinova::Api::ActuatorConfig::ControlModeInformation();
@@ -74,7 +75,7 @@ EndLowLevelControl(KinovaNetworkConnection* network_connection)
 KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   std::vector<std::string> joint_names,
   std::vector<joint_limits_interface::JointLimits> limits,
-  KinovaNetworkConnection *network_connection) : joint_names_(joint_names), limits_(limits)
+  std::shared_ptr<KinovaNetworkConnection> network_connection) : joint_names_(joint_names), limits_(limits)
 {
   network_connection_ = network_connection;
 
