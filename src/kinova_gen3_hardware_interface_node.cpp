@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     // Warn the user if a loop ever takes 2 milliseconds or more
     if (controller_manager_loop_duration.toSec() > 2.0/loop_hz)
     {
-      ROS_WARN_THROTTLE(0.1, "Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
+      ROS_WARN_THROTTLE(0.1, "KinovaGen3HardwareInterfaceNode: The update loop took more than twice as long as expected. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
 		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
     }
   }
