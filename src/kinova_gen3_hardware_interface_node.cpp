@@ -72,8 +72,16 @@ int main(int argc, char** argv)
   controller_manager::ControllerManager controller_manager(&robot, nh);
   ROS_INFO("Controller manager started");
 
-  int loop_hz = 1000;
-  ros::Duration update_freq = ros::Duration(1.0/loop_hz);
+  double control_loop_hz;
+  if (!private_nh.getParam("control_loop_hz", control_loop_hz))
+  {
+    double default_control_loop_hz = 500;
+    ROS_WARN("No control_loop_hz given in namespace: %s. Defaulting to %f.",
+        private_nh.getNamespace().c_str(), default_control_loop_hz);
+    control_loop_hz = default_control_loop_hz;
+  }
+    
+  ros::Duration update_freq = ros::Duration(1.0/control_loop_hz);
   ros::Time previous = ros::Time::now();
   ros::Time current = ros::Time::now();
 
@@ -107,6 +115,12 @@ int main(int argc, char** argv)
     current = ros::Time::now();
     controller_manager_loop_duration = current-previous;
     controller_manager.update(current, controller_manager_loop_duration);
+    // Warn the user if a loop ever takes 2 milliseconds or more
+    if (controller_manager_loop_duration.toSec() > 2.0/control_loop_hz)
+    {
+      ROS_WARN_THROTTLE(0.1, "KinovaGen3HardwareInterfaceNode: The update loop took more than twice as long as expected. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
+		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
+    }
     previous = current;
     stop = ros::Time::now();
     update_time_secs = (stop-start).toSec();
@@ -121,11 +135,5 @@ int main(int argc, char** argv)
     stop = ros::Time::now();
     sleep_time_secs = (stop-start).toSec();
 
-    // Warn the user if a loop ever takes 2 milliseconds or more
-    if (controller_manager_loop_duration.toSec() > 2.0/loop_hz)
-    {
-      ROS_WARN_THROTTLE(0.1, "KinovaGen3HardwareInterfaceNode: The update loop took more than twice as long as expected. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
-		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
-    }
   }
 }

@@ -24,5 +24,6 @@
   <node machine="control-computer" name="kinova_gen3_hardware_interface_node" pkg="kinova_gen3_control" type="kinova_gen3_control_node" respawn="false"
     output="screen">
     <param name="fake_connection" value="$(arg fake_connection)"/>
+    <param name="control_loop_hz" value="500"/>
   </node>
 </launch>
