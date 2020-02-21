@@ -1,7 +1,19 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="use_local_control_computer" default="true"/>
   <arg name="fake_connection" default="false"/>
   <arg name="control_loop_hz" default="500"/>
+
+  
+  <group if="$(arg use_local_control_computer)">
+    <machine name="control-computer" address="localhost"/>
+  </group>
+  <group unless="$(arg use_local_control_computer)">
+    <!-- see http://wiki.ros.org/roslaunch/XML/machine for how to set up this launchfile to run on a different machine -->
+    <!-- <machine name="control-computer" address="your-machine-name-here"/> -->
+  </group>
+ 
+
   <!-- effort_controllers/joint_position_controller.cpp requires the urdf so that it can apply joint limits and so it knows if requested position should be considered to be mod 2pi -->
   <param name="robot_description" command="$(find xacro)/xacro $(find kortex_description)/robots/gen3_robotiq_2f_85.xacro sim:=false"/>
   <!-- load joint limits from param file (overwriting associated limits in URDF)-->
