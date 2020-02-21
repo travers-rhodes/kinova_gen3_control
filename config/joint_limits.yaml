@@ -3,41 +3,41 @@ joint_limits:
     has_velocity_limits: true
     max_velocity: 1.0
     has_effort_limits: true
-    max_effort: 10.0
+    max_effort: 50.0
 
   joint_2:
     has_velocity_limits: true
     max_velocity: 1.0
     has_effort_limits: true
-    max_effort: 30.0
+    max_effort: 50.0
 
   joint_3:
     has_velocity_limits: true
     max_velocity: 1.0
     has_effort_limits: true
-    max_effort: 3.0
+    max_effort: 50.0
 
   joint_4:
     has_velocity_limits: true
     max_velocity: 1.0
     has_effort_limits: true
-    max_effort: 20.0
+    max_effort: 50.0
 
   joint_5:
     has_velocity_limits: true
     max_velocity: 1.0
     has_effort_limits: true
-    max_effort: 3.0
+    max_effort: 20.0
 
   joint_6:
     has_velocity_limits: true
     max_velocity: 1.0
     has_effort_limits: true
-    max_effort: 3.0
+    max_effort: 20.0
 
   joint_7:
     has_position_limits: false # Continuous joint
     has_velocity_limits: true
     max_velocity: 4.0
     has_effort_limits: true
-    max_effort: 1.0
+    max_effort: 20.0
