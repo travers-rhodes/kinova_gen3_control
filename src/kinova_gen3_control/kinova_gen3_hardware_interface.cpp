@@ -185,9 +185,18 @@ void KinovaGen3HardwareInterface::read()
     // Note that actuators is a 0-indexed array
     pos_[i] = angles::normalize_angle(angles::from_degrees(base_feedback_.actuators(i + array_index_offset).position())); // originally degrees
     vel_[i] = angles::from_degrees(base_feedback_.actuators(i + array_index_offset).velocity()); // originally degrees per second
-    // NOTA BENE: FOR NO APPARENT REASON kinova multiplies the _READ_ torque by negative one
-    // By doing this negative one, you can then send the effort right back as a torque command...
-    // I AGREE that this makes no sense.
+    // NOTA BENE: The torque returned by the feedback call is ``wrong''.
+    // It is -1 times what you would expect.
+    // That is, if the feedback returns a _positive_ torque, it means the motor
+    // is pushing the arm toward a more _negative_ position.
+    // (You can check this by putting the arm in a static position 
+    // and seeing which way the joint must be pushing to counteract gravity)
+    // We fix this oddity by multiplying the feedback by -1 here to give the
+    // correct torque that the joint is currently applying.
+    // An additional benefit of this fix is that you can now take the read effort
+    // and write that to the robot as a command to have the robot maintain its current torque.
+    // Note that this oddity is also reflected on the Kinova Dashboard 
+    // (a positive torque there also means the joint is trying to make the position more negative)
     eff_[i] = -base_feedback_.actuators(i + array_index_offset).torque(); // originally Newton * meters
     cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
   }
