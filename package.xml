@@ -32,6 +32,7 @@
   <depend>roscpp</depend>
   <depend>xacro</depend>
   <depend>ros_controllers</depend>
+  <depend>kortex_description</depend>
   <buildtool_depend>catkin</buildtool_depend>
 
 
