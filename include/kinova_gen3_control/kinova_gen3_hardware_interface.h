@@ -20,6 +20,9 @@
 #define NUMBER_OF_JOINTS 7
 // Set the max force of the gripper (between 0 and 100)
 #define GRIPPER_MAX_FORCE 1.0
+// For now, have the gripper interpolate given points at this velocity (between 0 and 100)
+// if you send commands fast enough, we don't care this value...right?
+#define GRIPPER_VELOCITY 50.0
 
 class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 {
@@ -38,7 +41,7 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     std::vector<joint_limits_interface::JointLimits> limits_;
     hardware_interface::JointStateInterface jnt_state_interface_;
     hardware_interface::EffortJointInterface jnt_eff_interface_;
-    hardware_interface::VelocityJointInterface jnt_vel_interface_;
+    hardware_interface::PositionJointInterface jnt_pos_interface_;
     joint_limits_interface::EffortJointSaturationInterface jnt_eff_limit_interface_;
     // no need to re-create this object every time it's used
     Kinova::Api::BaseCyclic::Feedback base_feedback_;
@@ -68,7 +71,7 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 
     ///////////
     // gripper commands (separate for convenience/readability)
-    double grip_cmd_vel_;
+    double grip_cmd_pos_;
     // this is the max force that the gripper will apply (scaled from 0 to 100)
     double grip_cmd_max_force_;
     ///////////

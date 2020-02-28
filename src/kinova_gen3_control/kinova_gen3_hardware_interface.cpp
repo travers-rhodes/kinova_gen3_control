@@ -162,9 +162,9 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   registerInterface(&jnt_eff_interface_);
    
   // register gripper vel interface 
-  hardware_interface::JointHandle vel_handle(jnt_state_interface_.getHandle(gripper_name), &grip_cmd_vel_);
-  jnt_vel_interface_.registerHandle(vel_handle);
-  registerInterface(&jnt_vel_interface_);
+  hardware_interface::JointHandle pos_handle(jnt_state_interface_.getHandle(gripper_name), &grip_cmd_pos_);
+  jnt_pos_interface_.registerHandle(pos_handle);
+  registerInterface(&jnt_pos_interface_);
 
   ROS_INFO("Hardware interfaces registered");
 }
@@ -215,16 +215,10 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 
   //TODO Robotiq: Wrap this in an "ifHasGripper" before merging to master
   base_command.mutable_interconnect()->mutable_gripper_command()->add_motor_cmd();
-
-  double grip_position_to_command = 0;
-  if (grip_cmd_vel_ > 0)
-  {
-    grip_position_to_command = 100;
-  } 
   
-  double grip_velocity_to_command = fmin(100.0,fabs(grip_cmd_vel_));
-  ROS_DEBUG_THROTTLE(1, "Writing command to gripper %f, %f, %f", grip_position_to_command, grip_velocity_to_command, GRIPPER_MAX_FORCE);
-  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_position(grip_position_to_command);
+  double grip_velocity_to_command = GRIPPER_VELOCITY;
+  ROS_DEBUG_THROTTLE(1, "Writing command to gripper %f, %f, %f", grip_cmd_pos_, grip_velocity_to_command, GRIPPER_MAX_FORCE);
+  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_position(grip_cmd_pos_);
   base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_velocity(grip_velocity_to_command);
   base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_force(GRIPPER_MAX_FORCE);
 
@@ -275,7 +269,7 @@ void KinovaGen3HardwareInterface::read()
   grip_current_ = base_feedback_.interconnect().gripper_feedback().motor()[0].current_motor();
   grip_voltage_ = base_feedback_.interconnect().gripper_feedback().motor()[0].voltage();
   grip_temperature_ = base_feedback_.interconnect().gripper_feedback().motor()[0].temperature_motor();
-  grip_cmd_vel_ = 0; // default at startup: have gripper hold position
+  grip_cmd_pos_ = grip_pos_; // default at startup: have gripper hold position
   ROS_DEBUG_THROTTLE(1, "Gripper Current: %03.4f, Voltage:  %03.4f, Temperature: %03.4f", grip_current_, grip_voltage_, grip_temperature_);
   
   if (NUMBER_OF_JOINTS == 7)
