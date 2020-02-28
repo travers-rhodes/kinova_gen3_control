@@ -20,9 +20,8 @@
 #define NUMBER_OF_JOINTS 7
 // Set the max force of the gripper (between 0 and 100)
 #define GRIPPER_MAX_FORCE 1.0
-// For now, have the gripper interpolate given points at this velocity (between 0 and 100)
-// if you send commands fast enough, we don't care this value...right?
-#define GRIPPER_VELOCITY 50.0
+// For now, we add a simple scaling velocity command to the position control
+#define GRIPPER_VELOCITY_PROPORTION 0.5
 
 class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 {

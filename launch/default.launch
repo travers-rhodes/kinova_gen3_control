@@ -25,7 +25,7 @@
   <!-- just spawn (and never unload) these controllers https://github.com/ros-controls/ros_control/issues/304 -->
   <arg name="controllers_to_spawn" value="
     joint_state_controller
-    robotiq_gripper_joint_trajectory_controller
+    robotiq_gripper_position_controller
     joint_1_position_controller
     joint_2_position_controller
     joint_3_position_controller

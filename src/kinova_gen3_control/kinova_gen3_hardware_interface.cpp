@@ -215,8 +215,13 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 
   //TODO Robotiq: Wrap this in an "ifHasGripper" before merging to master
   base_command.mutable_interconnect()->mutable_gripper_command()->add_motor_cmd();
-  
-  double grip_velocity_to_command = GRIPPER_VELOCITY;
+ 
+  // A little bit of smoothing never hurt anyone 
+  double pos_error = grip_cmd_pos_ - grip_pos_;
+  double grip_velocity_to_command = fabs(GRIPPER_VELOCITY_PROPORTION * pos_error);
+  // velocity should never go above 100 or below 1 when you're sending a position command
+  // the high-level robotiq controller will take care of stopping (note: velocity of 1.0/255 is min recorded velocity robotiq sees)
+  grip_velocity_to_command = fmin(100.0, fmax(1.0/255, grip_velocity_to_command));
   ROS_DEBUG_THROTTLE(1, "Writing command to gripper %f, %f, %f", grip_cmd_pos_, grip_velocity_to_command, GRIPPER_MAX_FORCE);
   base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_position(grip_cmd_pos_);
   base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_velocity(grip_velocity_to_command);
