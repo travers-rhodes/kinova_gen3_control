@@ -72,11 +72,57 @@ EndLowLevelControl(std::shared_ptr<KinovaNetworkConnection> network_connection)
   ROS_INFO("Low-level control ended");
 }
 
+void
+StopGripper(std::shared_ptr<KinovaNetworkConnection> network_connection, const Kinova::Api::BaseCyclic::Feedback &base_feedback)
+{
+  ROS_INFO("Stopping Gripper");
+  std::cout << "Stopping Gripper" << std::endl;
+  Kinova::Api::BaseCyclic::Command  base_command;
+
+  // HARDCODE the total number of joints to 7 because we want to always
+  // add position to each joint (even if only intentionally actuating fewer
+  for (int i = 0; i < 7; i++)
+  {
+    // Save the current actuator position, to avoid a following error
+    base_command.add_actuators()->set_position(base_feedback.actuators(i).position());
+  }
+  int array_index_offset = FIRST_JOINT_INDEX - 1;
+  for (int i = 0; i < NUMBER_OF_JOINTS; i++)
+  {
+    // Note that mutable_actuators is a 0-indexed array
+    // note the negative one we need here because Kinova
+    base_command.mutable_actuators(i + array_index_offset)->set_torque_joint(-base_feedback.actuators(i + array_index_offset).torque());
+  }
+  base_command.mutable_interconnect()->mutable_gripper_command()->add_motor_cmd();
+  // Fully opened
+  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_position(0.0);
+  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_velocity(0.0);
+  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_force(0.0);
+
+  try
+  {
+    network_connection->CyclicRefresh(base_command);
+  } 
+  catch (Kinova::Api::KDetailedException& ex)
+  {
+    std::cout << "API error: " << ex.what() << std::endl;
+    throw; 
+  }
+  catch (std::runtime_error& ex2)
+  {
+    std::cout << "Error: " << ex2.what() << std::endl;
+    throw; 
+  }
+  ROS_INFO("Stopped Gripper");
+  std::cout << "Stopped Gripper" << std::endl;
+}
+
 KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   std::vector<std::string> joint_names,
   std::vector<joint_limits_interface::JointLimits> limits,
   std::shared_ptr<KinovaNetworkConnection> network_connection) : joint_names_(joint_names), limits_(limits)
 {
+  std::string gripper_name = "robotiq_gripper";
   network_connection_ = network_connection;
 
   InitializeLowLevelControl(network_connection_);
@@ -90,6 +136,9 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
     hardware_interface::JointStateHandle state_handle(joint_names_[i + array_index_offset], &pos_[i], &vel_[i], &eff_[i]);
     jnt_state_interface_.registerHandle(state_handle);
   }
+    
+  hardware_interface::JointStateHandle state_handle(gripper_name, &grip_pos_, &grip_vel_, &grip_current_);
+  jnt_state_interface_.registerHandle(state_handle);
 
   registerInterface(&jnt_state_interface_);
 
@@ -102,7 +151,6 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
     jnt_eff_interface_.registerHandle(eff_handle);
   }
 
-
   // set up the joint limiting interface so we can use it in "write"
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
@@ -111,13 +159,19 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
                                          limits_[i + array_index_offset]);       // Limits struct, copy constructor copies this
     jnt_eff_limit_interface_.registerHandle(eff_limit_handle);
   }
-
   registerInterface(&jnt_eff_interface_);
+   
+  // register gripper vel interface 
+  hardware_interface::JointHandle pos_handle(jnt_state_interface_.getHandle(gripper_name), &grip_cmd_pos_);
+  jnt_pos_interface_.registerHandle(pos_handle);
+  registerInterface(&jnt_pos_interface_);
+
   ROS_INFO("Hardware interfaces registered");
 }
 
 KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
 {
+  StopGripper(network_connection_, base_feedback_);
   EndLowLevelControl(network_connection_);
 }
 
@@ -158,6 +212,15 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
     // Note that mutable_actuators is a 0-indexed array
     base_command.mutable_actuators(i + array_index_offset)->set_torque_joint(cmd_[i]);
   }
+
+  //TODO Robotiq: Wrap this in an "ifHasGripper" before merging to master
+  base_command.mutable_interconnect()->mutable_gripper_command()->add_motor_cmd();
+  
+  double grip_velocity_to_command = GRIPPER_VELOCITY;
+  ROS_DEBUG_THROTTLE(1, "Writing command to gripper %f, %f, %f", grip_cmd_pos_, grip_velocity_to_command, GRIPPER_MAX_FORCE);
+  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_position(grip_cmd_pos_);
+  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_velocity(grip_velocity_to_command);
+  base_command.mutable_interconnect()->mutable_gripper_command()->mutable_motor_cmd(0)->set_force(GRIPPER_MAX_FORCE);
 
   try
   {
@@ -200,6 +263,14 @@ void KinovaGen3HardwareInterface::read()
     eff_[i] = -base_feedback_.actuators(i + array_index_offset).torque(); // originally Newton * meters
     cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
   }
+
+  grip_pos_ = base_feedback_.interconnect().gripper_feedback().motor()[0].position();
+  grip_vel_ = base_feedback_.interconnect().gripper_feedback().motor()[0].velocity();
+  grip_current_ = base_feedback_.interconnect().gripper_feedback().motor()[0].current_motor();
+  grip_voltage_ = base_feedback_.interconnect().gripper_feedback().motor()[0].voltage();
+  grip_temperature_ = base_feedback_.interconnect().gripper_feedback().motor()[0].temperature_motor();
+  grip_cmd_pos_ = grip_pos_; // default at startup: have gripper hold position
+  ROS_DEBUG_THROTTLE(1, "Gripper Current: %03.4f, Voltage:  %03.4f, Temperature: %03.4f", grip_current_, grip_voltage_, grip_temperature_);
   
   if (NUMBER_OF_JOINTS == 7)
   {

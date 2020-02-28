@@ -85,3 +85,11 @@ joint_7_position_controller:
         i: 0.0
         d: 0.0
     type: effort_controllers/JointPositionController
+
+robotiq_gripper_position_controller:
+    joint: robotiq_gripper 
+    type: position_controllers/JointPositionController
+
+robotiq_gripper_joint_trajectory_controller:
+    joints: [robotiq_gripper]
+    type: position_controllers/JointTrajectoryController

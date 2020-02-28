@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<robot name="gen3_robotiq_2f_85" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find kortex_description)/robots/gen3_robotiq_2f_85.xacro" />
+
+  <!-- ros_control requires you to list all joints here, so we include a dummy link and joint -->
+  <link name="dummy_gripper_link" />
+  <joint name="robotiq_gripper" type="prismatic">
+      <child link="dummy_gripper_link" />
+      <parent link="gripper_base_link" />
+      <limit lower="0" upper="100" effort="100" velocity="100"/>
+  </joint> 
+</robot>

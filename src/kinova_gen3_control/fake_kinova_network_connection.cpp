@@ -34,5 +34,6 @@ Kinova::Api::BaseCyclic::Feedback FakeKinovaNetworkConnection::CyclicRefreshFeed
   {
     Kinova::Api::BaseCyclic::ActuatorFeedback* actuators = feedback.add_actuators();
   }
+  feedback.mutable_interconnect()->mutable_gripper_feedback()->add_motor();
   return feedback;
 }
