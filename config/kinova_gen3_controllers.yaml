@@ -88,8 +88,14 @@ joint_7_position_controller:
 
 robotiq_gripper_position_controller:
     joint: robotiq_gripper 
-    type: position_controllers/JointPositionController
+    pid:
+        p: 0.1
+        i: 0.0
+        d: 0.0
+    type: velocity_controllers/JointPositionController
 
 robotiq_gripper_joint_trajectory_controller:
     joints: [robotiq_gripper]
-    type: position_controllers/JointTrajectoryController
+    type: velocity_controllers/JointTrajectoryController
+    gains: # Required because we're controlling a velocity interface
+      robotiq_gripper: {p: 0.5,  d: 0, i: 0, i_clamp: 0}
