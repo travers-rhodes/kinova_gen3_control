@@ -23,7 +23,7 @@
   <rosparam command="load" file="$(find kinova_gen3_control)/config/kinova_gen3_controllers.yaml"/>
 
   <!-- just spawn (and never unload) these controllers https://github.com/ros-controls/ros_control/issues/304 -->
-  <arg name="controllers_to_spawn" value="
+  <arg name="controllers_to_spawn" default="
     joint_state_controller
     robotiq_gripper_position_controller
     joint_1_position_controller
@@ -33,13 +33,18 @@
     joint_5_position_controller
     joint_6_position_controller
     joint_7_position_controller" />
+
+  <!-- just load (but don't start) these controllers -->
+  <arg name="controllers_to_load" default="
+                          gen3_joint_trajectory_controller
+                          " />
   <!-- load and start the position and state controllers --> 
   <node name="kinova_gen3_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
     output="screen" args="spawn $(arg controllers_to_spawn)"/>
     
   <!-- load, but don't start the trajectory controller -->
   <node name="gen3_joint_trajectory_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
-     output="screen" args="load gen3_joint_trajectory_controller"/>
+     output="screen" args="load $(arg controllers_to_load)"/>
 
   <node machine="control-computer" name="kinova_gen3_hardware_interface_node" pkg="kinova_gen3_control" type="kinova_gen3_control_node" respawn="false"
     output="screen">
