@@ -18,8 +18,8 @@ find_package(catkin REQUIRED
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-set(KORTEX_DIR "${PROJECT_SOURCE_DIR}/kortex_api/linux_gcc_x86-64/")
-if(NOT EXISTS ${KORTEX_DIR})
+set(KORTEX_DIR "${PROJECT_SOURCE_DIR}/kortex_api/")
+if(NOT EXISTS ${KORTEX_DIR}/lib)
   message(FATAL_ERROR "Please download the kortex_api and copy include and lib files to: ${KORTEX_DIR} More information is available in the kinova_gen3_control/kortex_api/README.txt file")
 endif()
 # in order to compile kortex headers, you need to set the architecture through this variable
@@ -165,7 +165,7 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 # Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
    ${PROJECT_NAME}
-   ${KORTEX_DIR}lib/release/libKortexApi.a
+   ${KORTEX_DIR}lib/release/libKortexApiCpp.a
    ${catkin_LIBRARIES}
 )
 
