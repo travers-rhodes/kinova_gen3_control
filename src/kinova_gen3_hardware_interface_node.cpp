@@ -61,6 +61,22 @@ int main(int argc, char** argv)
     // Limits not specified in the parameter server preserve their existing values
     const bool rosparam_limits_ok = joint_limits_interface::getJointLimits(joint_names[i], nh, limits);
     limits_list.push_back(limits);
+    ROS_WARN("joint %d: max_acceleration %f, max_effort %f, max_jerk %f, max_position %f, max_velocity %f, min_position %f",
+        i+1,
+        limits.max_acceleration,
+        limits.max_effort,
+        limits.max_jerk,
+        limits.max_position,
+        limits.max_velocity,
+        limits.min_position);
+    ROS_WARN("joint %d: angle_wraparound %d, has_acceleration_limits %d, has_effort_limits %d, has_jerk_limits %d, has_position_limits %d, has_velocity_limits %d",
+        i+1,
+        limits.angle_wraparound,
+        limits.has_acceleration_limits,
+        limits.has_effort_limits,
+        limits.has_jerk_limits,
+        limits.has_position_limits,
+        limits.has_velocity_limits);
   }
 
   KinovaGen3HardwareInterface robot(
