@@ -59,7 +59,7 @@ rosdep update
 rosdep install --from-paths . --ignore-src -r
 cd ~/Downloads
 rm -f linux_x86-64_x86_gcc.zip
-rm -rf linux_x86-64
+rm -rf linux_gcc_x86-64
 wget https://artifactory.kinovaapps.com:443/artifactory/generic-public/kortex/API/2.3.0/linux_x86-64_x86_gcc.zip
 unzip linux_x86-64_x86_gcc.zip -d linux_gcc_x86-64
 cp -r ~/Downloads/linux_gcc_x86-64/* ~/my_catkin_ws/src/kinova_gen3_control/kortex_api/ 
