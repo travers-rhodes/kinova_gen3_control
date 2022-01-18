@@ -46,6 +46,7 @@ source /opt/ros/melodic/setup.bash
 catkin build
 ```
 
+## TL;DR Installation
 Together, all the install instructions above are
 ```
 cd ~
@@ -67,6 +68,7 @@ cd ~/my_catkin_ws
 catkin config --blacklist kortex_control kortex_driver kortex_examples kortex_gazebo gazebo_version_helpers gazebo_grasp_plugin roboticsgroup_gazebo_plugins  gen3_lite_gen3_lite_2f_move_it_config gen3_move_it_config gen3_robotiq_2f_140_move_it_config gen3_robotiq_2f_85_move_it_config roboticsgroup_upatras_gazebo_plugins
 source /opt/ros/melodic/setup.bash
 catkin build
+source devel/setup.bash
 ```
 
 
