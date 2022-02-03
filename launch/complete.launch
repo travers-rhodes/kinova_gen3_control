@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="use_local_control_computer" default="true"/>
+  <arg name="fake_connection" default="false"/>
+  <arg name="control_loop_hz" default="500"/>
+  <arg name="load_robot_description" default="true"/>
+
+  
+  <group if="$(arg use_local_control_computer)">
+    <machine name="control-computer" address="localhost"/>
+  </group>
+  <group unless="$(arg use_local_control_computer)">
+    <!-- see http://wiki.ros.org/roslaunch/XML/machine for how to set up this launchfile to run on a different machine -->
+    <!-- <machine name="control-computer" address="your-machine-name-here"/> -->
+  </group>
+
+  <!-- give the option not to load the robot description here (in case the caller has a more detailed robot description
+       they don't want overwritten -->
+  <group if="$(arg load_robot_description)">
+    <!-- effort_controllers/joint_position_controller.cpp requires the urdf so that it can apply joint limits and so it knows if requested position should be considered to be mod 2pi -->
+    <param name="robot_description" command="$(find xacro)/xacro $(find kortex_description)/robots/gen3_robotiq_2f_85.xacro sim:=false"/>
+  </group>
+  <!-- load joint limits from param file (overwriting associated limits in URDF)-->
+  <rosparam command="load" file="$(find kinova_gen3_control)/config/joint_limits.yaml"/>
+
+  <rosparam command="load" file="$(find kinova_gen3_control)/config/kinova_gen3_controllers.yaml"/>
+
+  <!-- just spawn (and never unload) these controllers https://github.com/ros-controls/ros_control/issues/304 -->
+  <arg name="controllers_to_spawn" default="
+                          gen3_joint_trajectory_controller
+                          joint_state_controller 
+    " />
+  <!-- just load (but don't start) these controllers -->
+  <arg name="controllers_to_load" default="
+                          joint_1_position_controller
+                          joint_2_position_controller
+                          joint_3_position_controller
+                          joint_4_position_controller
+                          joint_5_position_controller
+                          joint_6_position_controller
+                          joint_7_position_controller
+                          " />
+  <!-- load and start the position and state controllers --> 
+  <node name="kinova_gen3_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
+    output="screen" args="spawn $(arg controllers_to_spawn)"/>
+    
+  <!-- load, but don't start the trajectory controller -->
+  <node name="gen3_joint_trajectory_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
+     output="screen" args="load $(arg controllers_to_load)"/>
+
+  <node machine="control-computer" name="kinova_gen3_hardware_interface_node" pkg="kinova_gen3_control" type="kinova_gen3_control_node" respawn="false"
+    output="screen">
+    <param name="fake_connection" value="$(arg fake_connection)"/>
+    <param name="control_loop_hz" value="$(arg control_loop_hz)"/>
+  </node>
+</launch>

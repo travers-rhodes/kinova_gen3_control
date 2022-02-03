@@ -5,6 +5,8 @@
 #include <joint_limits_interface/joint_limits_urdf.h>
 #include <joint_limits_interface/joint_limits_rosparam.h>
 
+#include <realtime_tools/realtime_publisher.h>
+#include "std_msgs/Float32.h"
 
 #include "kinova_gen3_control/kinova_gen3_hardware_interface.h"
 #include "kinova_gen3_control/kinova_gen3_network_connection.h"
@@ -18,6 +20,8 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ros::AsyncSpinner spinner(1);
   spinner.start();
+  realtime_tools::RealtimePublisher<std_msgs::Float32> *realtime_pub = new
+    realtime_tools::RealtimePublisher<std_msgs::Float32>(nh, "realtime_loop_rate", 4);
 
   std::cout << "Parsing URDF" << std::endl;
   urdf::Model urdf_robot;
@@ -97,6 +101,9 @@ int main(int argc, char** argv)
   double update_time_secs = 0;
   double write_time_secs = 0;
   double sleep_time_secs = 0;
+  double loop_count_mod_thousand = 0;
+  ros::Time thousand_loops_start = ros::Time::now();
+  ros::Time thousand_loops_end = ros::Time::now();
   ros::Duration controller_manager_loop_duration;
   ros::Time start = ros::Time::now();
   ros::Time stop = ros::Time::now();
@@ -134,6 +141,15 @@ int main(int argc, char** argv)
     loop_rate.sleep();
     stop = ros::Time::now();
     sleep_time_secs = (stop-start).toSec();
-
+    loop_count_mod_thousand++;
+    if (loop_count_mod_thousand == 1000) {
+      loop_count_mod_thousand = 0;
+      thousand_loops_end = ros::Time::now();
+      if (realtime_pub->trylock()){
+        realtime_pub->msg_.data = 1000/(thousand_loops_end-thousand_loops_start).toSec();
+        realtime_pub->unlockAndPublish();
+      }
+      thousand_loops_start = ros::Time::now();
+    }
   }
 }
