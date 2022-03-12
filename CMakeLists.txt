@@ -15,9 +15,6 @@ find_package(catkin REQUIRED
   angles
   roscpp)
 
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
 set(KORTEX_DIR "${PROJECT_SOURCE_DIR}/kortex_api/")
 if(NOT EXISTS ${KORTEX_DIR}/lib)
   message(FATAL_ERROR "Please download the kortex_api and copy include and lib files to: ${KORTEX_DIR} More information is available in the kinova_gen3_control/kortex_api/README.txt file")
@@ -118,8 +115,14 @@ include_directories(${KORTEX_DIR}include/client_stubs)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES kinova_gen3_control
+  INCLUDE_DIRS include
+    ${KORTEX_DIR}include
+    ${KORTEX_DIR}include/client
+    ${KORTEX_DIR}include/common
+    ${KORTEX_DIR}include/messages
+    ${KORTEX_DIR}include/client_stubs
+  LIBRARIES kinova_gen3_control
+   ${KORTEX_DIR}lib/release/libKortexApiCpp.a
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
