@@ -83,22 +83,26 @@ KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
 
   ROS_INFO("Register hardware interface");
 
+  jnt_state_handles_.resize(NUMBER_OF_JOINTS);
   int array_index_offset = FIRST_JOINT_INDEX - 1;
   // connect and register the joint state interfaces
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     hardware_interface::JointStateHandle state_handle(joint_names_[i + array_index_offset], &pos_[i], &vel_[i], &eff_[i]);
+    jnt_state_handles_[i] = state_handle;
     jnt_state_interface_.registerHandle(state_handle);
   }
 
   registerInterface(&jnt_state_interface_);
 
+  eff_handles_.resize(NUMBER_OF_JOINTS);
   // connect and register the joint position interfaces
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     // note how a hardware_interface::JointHandle requires a hardware_interface::JointStateHandle in its constructor
     // in case you're wondering how this for loop relates to the for loop above
     hardware_interface::JointHandle eff_handle(jnt_state_interface_.getHandle(joint_names_[i + array_index_offset]), &cmd_[i]);
+    eff_handles_[i] = eff_handle;
     jnt_eff_interface_.registerHandle(eff_handle);
   }
 

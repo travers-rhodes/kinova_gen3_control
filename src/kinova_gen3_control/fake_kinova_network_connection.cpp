@@ -3,6 +3,7 @@
 FakeKinovaNetworkConnection::FakeKinovaNetworkConnection() 
 {
   ROS_DEBUG("FakeNetwork: Creating connection");
+  std::cout << "FakeNetwork: Creating connection" << std::endl;
 }
 
 FakeKinovaNetworkConnection::~FakeKinovaNetworkConnection() 

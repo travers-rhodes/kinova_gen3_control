@@ -34,6 +34,10 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     std::shared_ptr<KinovaNetworkConnection> network_connection_;
     std::vector<std::string> joint_names_;
     std::vector<joint_limits_interface::JointLimits> limits_;
+    // explicitly save pointers to these effort handles in a vector
+    // since I think this will prevent some valgrind errors I was seeing in testing
+    std::vector<hardware_interface::JointStateHandle> jnt_state_handles_;
+    std::vector<hardware_interface::JointHandle> eff_handles_;
     hardware_interface::JointStateInterface jnt_state_interface_;
     hardware_interface::EffortJointInterface jnt_eff_interface_;
     joint_limits_interface::EffortJointSaturationInterface jnt_eff_limit_interface_;
