@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
+
+# We don't use the VERSION variables for our package...
+# https://github.com/google/googletest/pull/2264/commits/97d8c47df92b7514dc33d361c21a4d8965f10954
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
 project(kinova_gen3_control)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
