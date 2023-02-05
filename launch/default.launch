@@ -10,7 +10,7 @@
   </group>
   <group unless="$(arg use_local_control_computer)">
     <!-- see http://wiki.ros.org/roslaunch/XML/machine for how to set up this launchfile to run on a different machine -->
-    <!-- <machine name="control-computer" address="your-machine-name-here"/> -->
+    <machine name="control-computer" address="untitled-control" env-loader="/home/realtimeuser/kortex_ros_control_ws/src/kinova_gen3_control/env.sh"/>
   </group>
  
 
