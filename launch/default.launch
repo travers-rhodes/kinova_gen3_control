@@ -16,8 +16,6 @@
 
   <!-- effort_controllers/joint_position_controller.cpp requires the urdf so that it can apply joint limits and so it knows if requested position should be considered to be mod 2pi -->
   <param name="robot_description" command="$(find xacro)/xacro $(find kortex_description)/robots/gen3_robotiq_2f_85.xacro sim:=false"/>
-  <!-- load joint limits from param file (overwriting associated limits in URDF)-->
-  <rosparam command="load" file="$(find kinova_gen3_control)/config/joint_limits.yaml"/>
 
   <rosparam command="load" file="$(find kinova_gen3_control)/config/kinova_gen3_controllers.yaml"/>
 

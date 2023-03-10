@@ -11,6 +11,7 @@
 #include "kinova_gen3_control/kinova_gen3_hardware_interface.h"
 #include "kinova_gen3_control/kinova_gen3_network_connection.h"
 #include "kinova_gen3_control/fake_kinova_network_connection.h"
+#include "kinova_gen3_control/gazebo_kinova_network_connection.h"
 
 //https://slaterobots.com/blog/5abd8a1ed4442a651de5cb5b/how-to-implement-ros_control-on-a-custom-robot
 int main(int argc, char** argv)
@@ -31,6 +32,8 @@ int main(int argc, char** argv)
 
   bool fake_connection;
   private_nh.getParam("fake_connection", fake_connection);
+  bool use_gazebo;
+  private_nh.getParam("use_gazebo", use_gazebo);
 
   std::shared_ptr<KinovaNetworkConnection> network_connection;
   if (fake_connection)
@@ -38,7 +41,11 @@ int main(int argc, char** argv)
     ROS_INFO("Creating fake network connection");
     network_connection = std::make_shared<FakeKinovaNetworkConnection>(); 
   }
-  else 
+  else if (use_gazebo) {
+    ROS_INFO("Creating Gazebo network connection");
+    network_connection = std::make_shared<GazeboKinovaNetworkConnection>(nh); 
+  } 
+  else
   {
     ROS_INFO("Creating real network connection");
     network_connection = std::make_shared<KinovaGen3NetworkConnection>(); 
@@ -111,6 +118,7 @@ int main(int argc, char** argv)
   previous = current;
   // use a Rate loop to only sleep if we're faster than 1kHz (we generally aren't)
   ros::Rate loop_rate(update_freq);
+  loop_rate.sleep();
   while (ros::ok())
   {
     start = stop;
@@ -121,6 +129,12 @@ int main(int argc, char** argv)
     start = stop;
     current = ros::Time::now();
     controller_manager_loop_duration = current-previous;
+    if (controller_manager_loop_duration.toSec() == 0.00)
+    {
+      ROS_ERROR("KinovaGen3HardwareInterfaceNode: The loop duration was zero. I assume this was in simulation and that there's a bug. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
+		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
+      continue;
+    }
     controller_manager.update(current, controller_manager_loop_duration);
     // Warn the user if a loop ever takes 2 milliseconds or more
     if (controller_manager_loop_duration.toSec() > 2.0/control_loop_hz)

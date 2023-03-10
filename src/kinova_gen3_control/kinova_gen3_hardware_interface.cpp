@@ -127,6 +127,7 @@ KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
 
 void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 {
+  float before_limiting[NUMBER_OF_JOINTS];
   if (NUMBER_OF_JOINTS == 7)
   {
     ROS_DEBUG_THROTTLE(1, "Commanded effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
@@ -134,6 +135,9 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
   else
   {
    ROS_DEBUG_THROTTLE(1, "Commanded effort of %f", cmd_[0]);
+  }
+  for (int i=0; i<NUMBER_OF_JOINTS; i++){
+    before_limiting[i] = cmd_[i];
   }
 
   Kinova::Api::BaseCyclic::Command  base_command;
@@ -146,6 +150,41 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
   else
   {
     ROS_DEBUG_THROTTLE(1, "Writing an effort of %f", cmd_[0]);
+  }
+
+
+  bool joints_limited = false;
+  bool joints_set_to_zero = false;
+  for (int i=0; i<NUMBER_OF_JOINTS; i++){
+    joints_limited = joints_limited || abs(before_limiting[i] - cmd_[i]) > 0.00001;
+    joints_set_to_zero = joints_set_to_zero || abs(cmd_[i]) < 0.00001;
+  }
+  if (joints_limited){
+    if (NUMBER_OF_JOINTS == 7)
+    {
+      ROS_DEBUG_THROTTLE(1, 
+          "JointsLimited: Writing an effort of %f, %f, %f, %f, %f, %f, %f But we wanted to write an effort of %f, %f, %f, %f, %f, %f, %f",
+          cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6],
+          before_limiting[0], before_limiting[1], before_limiting[2], before_limiting[3], before_limiting[4], before_limiting[5], before_limiting[6]);
+      if (joints_set_to_zero) {
+        std::stringstream errormsg;
+        errormsg << "JointsSetToZero: ";
+        for (int i=0; i<NUMBER_OF_JOINTS; i++){
+          if (abs(cmd_[i]) < 0.00001) {
+            errormsg << "joint_" << i+1 << " with pos, vel, eff, desired of (" <<
+              pos_[i] << ", " << vel_[i] << ", " << eff_[i] << ", " << before_limiting[i] << ")";
+
+          }
+        }
+        // https://stackoverflow.com/questions/1374468/stringstream-string-and-char-conversion-confusion
+        const std::string tmp = errormsg.str();
+        ROS_ERROR("%s", tmp.c_str());
+      }
+    }
+    else
+    {
+      ROS_ERROR_THROTTLE(1, "Effort was limited");
+    }
   }
 
 
@@ -203,6 +242,9 @@ void KinovaGen3HardwareInterface::read()
     // (a positive torque there also means the joint is trying to make the position more negative)
     eff_[i] = -base_feedback_.actuators(i + array_index_offset).torque(); // originally Newton * meters
     cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
+    if (isnan(cmd_[i])) {
+      ROS_ERROR("Had a cmd of NAN!!!!!");
+    }
   }
   
   if (NUMBER_OF_JOINTS == 7)
