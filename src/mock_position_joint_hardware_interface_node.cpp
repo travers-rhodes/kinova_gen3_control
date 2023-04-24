@@ -19,7 +19,7 @@ int main(int argc, char** argv)
   ROS_INFO("Controller manager started");
 
   ROS_INFO("Entering ros_control loop");
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(100);
   ros::Time previous = ros::Time::now();
   ros::Time current = ros::Time::now();
   ros::Duration controller_manager_loop_duration;
@@ -30,6 +30,7 @@ int main(int argc, char** argv)
     controller_manager_loop_duration = current-previous;
     cm.update(current, controller_manager_loop_duration);
     robot.write(controller_manager_loop_duration);
+    previous = current;
     loop_rate.sleep();
   }
 }
