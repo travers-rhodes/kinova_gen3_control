@@ -131,16 +131,16 @@ int main(int argc, char** argv)
     controller_manager_loop_duration = current-previous;
     if (controller_manager_loop_duration.toSec() == 0.00)
     {
-      ROS_ERROR("KinovaGen3HardwareInterfaceNode: The loop duration was zero. I assume this was in simulation and that there's a bug. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
-		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
+      //ROS_ERROR("KinovaGen3HardwareInterfaceNode: The loop duration was zero. I assume this was in simulation and that there's a bug. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
+		  //  controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
       continue;
     }
     controller_manager.update(current, controller_manager_loop_duration);
     // Warn the user if a loop ever takes 2 milliseconds or more
     if (controller_manager_loop_duration.toSec() > 2.0/control_loop_hz)
     {
-      ROS_WARN_THROTTLE(0.1, "KinovaGen3HardwareInterfaceNode: The update loop took more than twice as long as expected. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
-		    controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
+      //ROS_WARN_THROTTLE(0.1, "KinovaGen3HardwareInterfaceNode: The update loop took more than twice as long as expected. Total: %f sec. Read: %f; Update: %f; Write: %f; Sleep: %f", 
+		  //  controller_manager_loop_duration.toSec(), read_time_secs, update_time_secs, write_time_secs, sleep_time_secs);
     }
     previous = current;
     stop = ros::Time::now();

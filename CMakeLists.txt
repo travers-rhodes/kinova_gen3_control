@@ -128,7 +128,7 @@ catkin_package(
     ${KORTEX_DIR}include/common
     ${KORTEX_DIR}include/messages
     ${KORTEX_DIR}include/client_stubs
-  LIBRARIES kinova_gen3_control
+  LIBRARIES kinova_gen3_control mock_position_joint_hardware_interface
    ${KORTEX_DIR}lib/release/libKortexApiCpp.a
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
@@ -152,22 +152,25 @@ add_library(${PROJECT_NAME}
   src/${PROJECT_NAME}/fake_kinova_network_connection.cpp
   src/${PROJECT_NAME}/gazebo_kinova_network_connection.cpp
 )
-
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+# Declare a C++ library
+add_library(mock_position_joint_hardware_interface
+   src/mock_position_joint_hardware_interface/mocked_position_joint_hardware_interface.cpp
+)
+add_dependencies(mock_position_joint_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(mock_position_joint_hardware_interface_node src/mock_position_joint_hardware_interface_node.cpp)
+add_dependencies(mock_position_joint_hardware_interface_node mock_position_joint_hardware_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(mock_position_joint_hardware_interface_node
+   mock_position_joint_hardware_interface
+   ${catkin_LIBRARIES}
+)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/kinova_gen3_hardware_interface_node.cpp)
-
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

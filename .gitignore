@@ -1,3 +1,4 @@
 kortex_api/include
 kortex_api/lib
 env.sh
+compile_commands.json
