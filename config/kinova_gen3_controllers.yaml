@@ -42,7 +42,7 @@ gen3_joint_trajectory_controller:
         joint_4: {p: 1000.0, i: 500.0, d: 10.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
         joint_5: {p: 1000.0, i: 500.0, d: 1.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
         joint_6: {p: 1000.0, i: 50.0, d: 1.0, i_clamp_min: -5.0, i_clamp_max: 5.0, antiwindup: true}
-        joint_7: {p: 100.0, i: 5.0, d: 0.1, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
+        joint_7: {p: 1000.0, i: 50.0, d: 1.0, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
 
 joint_1_effort_controller:
     joint: joint_1
@@ -119,7 +119,8 @@ joint_6_position_controller:
 joint_7_position_controller:
     joint: joint_7
     pid:
-        p: 10.0
+        p: 1000.0
         i: 0.0
         d: 0.0
+        i_clamp: 200
     type: effort_controllers/JointPositionController

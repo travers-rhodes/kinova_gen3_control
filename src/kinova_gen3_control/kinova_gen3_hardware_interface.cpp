@@ -168,7 +168,7 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
           before_limiting[0], before_limiting[1], before_limiting[2], before_limiting[3], before_limiting[4], before_limiting[5], before_limiting[6]);
       if (joints_set_to_zero) {
         std::stringstream errormsg;
-        errormsg << "JointsSetToZero: ";
+        errormsg << "JointTorqueSetToZero: ";
         for (int i=0; i<NUMBER_OF_JOINTS; i++){
           if (abs(cmd_[i]) < 0.00001) {
             errormsg << "joint_" << i+1 << " with pos, vel, eff, desired of (" <<
