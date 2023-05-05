@@ -1,0 +1,21 @@
+joint_limits:
+  joint_1:
+    has_position_limits: false # Continuous joint
+  joint_2:
+    has_position_limits: true
+    min_position: -2.24
+    max_position: 2.24
+  joint_3:
+    has_position_limits: false # Continuous joint
+  joint_4:
+    has_position_limits: true
+    min_position: -2.57
+    max_position: 2.57
+  joint_5:
+    has_position_limits: false # Continuous joint
+  joint_6:
+    has_position_limits: true
+    min_position: -2.09
+    max_position: 2.09
+  joint_7:
+    has_position_limits: false # Continuous joint
