@@ -75,8 +75,11 @@ EndLowLevelControl(std::shared_ptr<KinovaNetworkConnection> network_connection)
 KinovaGen3HardwareInterface::KinovaGen3HardwareInterface(
   std::vector<std::string> joint_names,
   std::vector<joint_limits_interface::JointLimits> limits,
-  std::shared_ptr<KinovaNetworkConnection> network_connection) : joint_names_(joint_names), limits_(limits)
+  std::shared_ptr<KinovaNetworkConnection> network_connection,
+  ros::NodeHandle &nh) : joint_names_(joint_names), limits_(limits)
 {
+   realtime_pub_.reset(new realtime_tools::RealtimePublisher<kinova_gen3_control::EffortCommand>(nh, "low_level_effort_commands", 1));
+
   network_connection_ = network_connection;
 
   InitializeLowLevelControl(network_connection_);
@@ -125,33 +128,44 @@ KinovaGen3HardwareInterface::~KinovaGen3HardwareInterface()
   EndLowLevelControl(network_connection_);
 }
 
+void KinovaGen3HardwareInterface::publish_throttled_debug_message(int severity, std::vector<float> before_limiting) {
+  // add to throttle counter
+  debug_msg_counter_ += 1;
+
+  ROS_WARN_THROTTLE(1, "Got here %d", debug_msg_counter_);
+  // publish if throttle counter high enough
+  if (severity > last_publish_severity_ || debug_msg_counter_ >= 10) {
+    ROS_WARN_THROTTLE(1, "Got here too");
+    if (realtime_pub_->trylock()){
+      realtime_pub_->msg_.stamp = ros::Time::now();
+      std::vector<float> command(std::begin(cmd_), std::end(cmd_));
+      std::vector<float> read_pose(std::begin(pos_), std::end(pos_));
+      std::vector<float> read_velocity(std::begin(vel_), std::end(vel_));
+      std::vector<float> read_effort(std::begin(eff_), std::end(eff_));
+      realtime_pub_->msg_.command_before_limiting = before_limiting; 
+      realtime_pub_->msg_.command = command; 
+      realtime_pub_->msg_.read_pose = read_pose; 
+      realtime_pub_->msg_.read_velocity = read_velocity; 
+      realtime_pub_->msg_.read_effort = read_effort;
+      // save last published severity and reset counter
+      last_publish_severity_ = severity;
+      debug_msg_counter_ = 0;
+      realtime_pub_->unlockAndPublish();
+    }
+  }
+}
+
 void KinovaGen3HardwareInterface::write(const ros::Duration& period)
 {
-  float before_limiting[NUMBER_OF_JOINTS];
-  if (NUMBER_OF_JOINTS == 7)
-  {
-    ROS_DEBUG_THROTTLE(1, "Commanded effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
-  }
-  else
-  {
-   ROS_DEBUG_THROTTLE(1, "Commanded effort of %f", cmd_[0]);
-  }
+  int severity=0; // how important a debugging message of the current state would be
+
+  std::vector<float> before_limiting(NUMBER_OF_JOINTS);
   for (int i=0; i<NUMBER_OF_JOINTS; i++){
     before_limiting[i] = cmd_[i];
   }
 
   Kinova::Api::BaseCyclic::Command  base_command;
   jnt_eff_limit_interface_.enforceLimits(period);
-
-  if (NUMBER_OF_JOINTS == 7)
-  {
-    ROS_DEBUG_THROTTLE(1, "Writing an effort of %f, %f, %f, %f, %f, %f, %f", cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6]);
-  }
-  else
-  {
-    ROS_DEBUG_THROTTLE(1, "Writing an effort of %f", cmd_[0]);
-  }
-
 
   bool joints_limited = false;
   bool joints_set_to_zero = false;
@@ -160,33 +174,28 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
     joints_set_to_zero = joints_set_to_zero || abs(cmd_[i]) < 0.00001;
   }
   if (joints_limited){
-    if (NUMBER_OF_JOINTS == 7)
-    {
-      ROS_DEBUG_THROTTLE(1, 
-          "JointsLimited: Writing an effort of %f, %f, %f, %f, %f, %f, %f But we wanted to write an effort of %f, %f, %f, %f, %f, %f, %f",
-          cmd_[0], cmd_[1], cmd_[2], cmd_[3], cmd_[4], cmd_[5], cmd_[6],
-          before_limiting[0], before_limiting[1], before_limiting[2], before_limiting[3], before_limiting[4], before_limiting[5], before_limiting[6]);
-      if (joints_set_to_zero) {
-        std::stringstream errormsg;
-        errormsg << "JointTorqueSetToZero: ";
-        for (int i=0; i<NUMBER_OF_JOINTS; i++){
-          if (abs(cmd_[i]) < 0.00001) {
-            errormsg << "joint_" << i+1 << " with pos, vel, eff, desired of (" <<
-              pos_[i] << ", " << vel_[i] << ", " << eff_[i] << ", " << before_limiting[i] << ")";
-
-          }
+    severity = 1;
+    if (joints_set_to_zero) {
+      severity = 2;
+      std::stringstream errormsg;
+      errormsg << "JointTorqueSetToZero: ";
+      for (int i=0; i<NUMBER_OF_JOINTS; i++){
+        if (abs(cmd_[i]) < 0.00001) {
+          errormsg << "joint_" << i+1 << " with pos, vel, eff, desired of (" <<
+            pos_[i] << ", " << vel_[i] << ", " << eff_[i] << ", " << before_limiting[i] << ")";
         }
-        // https://stackoverflow.com/questions/1374468/stringstream-string-and-char-conversion-confusion
-        const std::string tmp = errormsg.str();
-        ROS_ERROR("%s", tmp.c_str());
       }
-    }
-    else
-    {
-      ROS_ERROR_THROTTLE(1, "Effort was limited");
+      // https://stackoverflow.com/questions/1374468/stringstream-string-and-char-conversion-confusion
+      const std::string tmp = errormsg.str();
+      // This error is expected because our joint limits
+      // are stricter than the robots actual joint limits.
+      // If the robot returns a position past our joint limits, we will
+      // zero-out torque for that joint in that direction.
+      //ROS_ERROR("%s", tmp.c_str());
     }
   }
 
+  publish_throttled_debug_message(severity, before_limiting);
 
   // HARDCODE the total number of joints to 7 because we want to always
   // add position to each joint (even if only intentionally actuating fewer

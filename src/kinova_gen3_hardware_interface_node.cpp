@@ -77,7 +77,8 @@ int main(int argc, char** argv)
   KinovaGen3HardwareInterface robot(
       joint_names,
       limits_list,
-      network_connection);
+      network_connection,
+      nh);
 
   ROS_INFO("Starting controller manager");
   controller_manager::ControllerManager controller_manager(&robot, nh);
