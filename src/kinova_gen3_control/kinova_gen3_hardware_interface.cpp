@@ -132,19 +132,17 @@ void KinovaGen3HardwareInterface::publish_throttled_debug_message(int severity, 
   // add to throttle counter
   debug_msg_counter_ += 1;
 
-  ROS_WARN_THROTTLE(1, "Got here %d", debug_msg_counter_);
   // publish if throttle counter high enough
   if (severity > last_publish_severity_ || debug_msg_counter_ >= 10) {
-    ROS_WARN_THROTTLE(1, "Got here too");
     if (realtime_pub_->trylock()){
       realtime_pub_->msg_.stamp = ros::Time::now();
       std::vector<float> command(std::begin(cmd_), std::end(cmd_));
-      std::vector<float> read_pose(std::begin(pos_), std::end(pos_));
+      std::vector<float> read_position(std::begin(pos_), std::end(pos_));
       std::vector<float> read_velocity(std::begin(vel_), std::end(vel_));
       std::vector<float> read_effort(std::begin(eff_), std::end(eff_));
       realtime_pub_->msg_.command_before_limiting = before_limiting; 
       realtime_pub_->msg_.command = command; 
-      realtime_pub_->msg_.read_pose = read_pose; 
+      realtime_pub_->msg_.read_position = read_position; 
       realtime_pub_->msg_.read_velocity = read_velocity; 
       realtime_pub_->msg_.read_effort = read_effort;
       // save last published severity and reset counter
