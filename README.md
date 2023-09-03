@@ -73,29 +73,55 @@ source devel/setup.bash
 
 
 ## Usage
-`roslaunch kinova_gen3_control default.launch` will 
+`roslaunch kinova_gen3_control complete.launch` will 
 
 1. Connect to the Kinova Gen3 arm (assumed to be at IP address `192.168.1.10`) using a TCP Transport Client on port 10000
 1. Connect to the Kinova Gen3 arm using a UDP Transport Client on port 10001
 1. Put the Robot in low-level control loop and load and start a `hardware_interface::EffortJointInterface` for each joint to send effort commands to each joint.
-1. Load and start a `effort_controllers::JointPositionController` for each joint, which provides a ROS topic `/joint_X_position_controller/command` for each joint.
+1. Load and start a `effort_controllers::JointTrajectoryController`, which provides a ROS topic `/gen3_joint_trajectory_controller/follow_joint_trajectory`.
 1. Start a `controller_manager::ControllerManager` that can be used to switch between high-level `ros_control::Controller`s. 
-For example, to switch to a joint_trajectory_controller (the information for which is already loaded by `default.launch`) you can run the following from the command line:
+
+### Moving the robot
+Once this is running, you can run a command-line command like
 ```
-rosservice call controller_manager/switch_controller "start_controllers: ['gen3_joint_trajectory_controller']
-stop_controllers: ['joint_1_position_controller',
-                   'joint_2_position_controller',
-                   'joint_3_position_controller',
-                   'joint_4_position_controller',
-                   'joint_5_position_controller',
-                   'joint_6_position_controller',
-                   'joint_7_position_controller'
-]
-strictness: 1
-start_asap: false
-timeout: 0.0"
-ok: True
+rostopic pub /gen3_joint_trajectory_controller/follow_joint_trajectory/goal control_msgs/FollowJointTrajectoryActionGoal "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: ''
+goal_id:
+  stamp:
+    secs: 0
+    nsecs: 0
+  id: ''
+goal:
+  trajectory:
+    header:
+      seq: 0
+      stamp:
+        secs: 0
+        nsecs: 0
+      frame_id: ''
+    joint_names:
+    - 'joint_1'
+    - 'joint_2'
+    - 'joint_3' 
+    - 'joint_4'
+    - 'joint_5'
+    - 'joint_6'
+    - 'joint_7'
+    points:
+    - positions: [0.00, 0.00, 0.00,0.00,0,0.00,0.00]
+      velocities: [0,0,0,0,0,0,0]
+      accelerations: [0,0,0,0,0,0,0]
+      effort: [0,0,0,0,0,0,0]
+      time_from_start: {secs: 10, nsecs: 0}
+  path_tolerance: []
+  goal_tolerance: []
+  goal_time_tolerance: {secs: 0, nsecs: 0}"
 ```
+To move the robot to particular joint angles. Or, you can interact with the `follow_joint_trajectory` ROS topic programatically using MoveIt https://ros-planning.github.io/moveit_tutorials/
 
 ## Debugging
 
