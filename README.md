@@ -41,7 +41,7 @@ cp -r ~/Downloads/linux_gcc_x86-64/* ~/my_catkin_ws/src/kinova_gen3_control/kort
 ### Build the packages we care about (blacklist all the extra packages bundled with ros_kortex)
 ```
 cd ~/my_catkin_ws
-catkin config --blacklist kortex_control kortex_driver kortex_examples kortex_gazebo gazebo_version_helpers gazebo_grasp_plugin roboticsgroup_gazebo_plugins gen3_lite_gen3_lite_2f_move_it_config gen3_move_it_config gen3_robotiq_2f_140_move_it_config roboticsgroup_upatras_gazebo_plugins
+catkin config --blacklist kortex_control kortex_driver kortex_examples gazebo_version_helpers gazebo_grasp_plugin roboticsgroup_gazebo_plugins gen3_lite_gen3_lite_2f_move_it_config gen3_move_it_config gen3_robotiq_2f_140_move_it_config roboticsgroup_upatras_gazebo_plugins
 source /opt/ros/melodic/setup.bash
 catkin build
 ```
