@@ -1,21 +1,35 @@
 joint_limits:
   joint_1:
     has_position_limits: false # Continuous joint
+    has_effort_limits: true
+    max_effort: 32.0
   joint_2:
     has_position_limits: true
     min_position: -2.24
     max_position: 2.24
+    has_effort_limits: true
+    max_effort: 32.0
   joint_3:
     has_position_limits: false # Continuous joint
+    has_effort_limits: true
+    max_effort: 32.0
   joint_4:
     has_position_limits: true
     min_position: -2.57
     max_position: 2.57
+    has_effort_limits: true
+    max_effort: 32.0
   joint_5:
     has_position_limits: false # Continuous joint
+    has_effort_limits: true
+    max_effort: 13.0
   joint_6:
     has_position_limits: true
     min_position: -2.09
     max_position: 2.09
+    has_effort_limits: true
+    max_effort: 13.0
   joint_7:
     has_position_limits: false # Continuous joint
+    has_effort_limits: true
+    max_effort: 13.0

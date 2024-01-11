@@ -207,6 +207,10 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
   {
     // Note that mutable_actuators is a 0-indexed array
     base_command.mutable_actuators(i + array_index_offset)->set_torque_joint(cmd_[i]);
+    // 2024-01-11 Also send the current actuator velocity, 
+    // in case that explains the amazingly perfect
+    // Frictional joint ``damping'' coefficient of 1.0 Hz
+    base_command.mutable_actuators(i + array_index_offset)->set_velocity(base_feedback_.actuators(i).velocity());
   }
 
   try
