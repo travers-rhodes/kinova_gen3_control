@@ -9,7 +9,7 @@ InitializeLowLevelControl(std::shared_ptr<KinovaNetworkConnection> network_conne
   auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
   servoing_mode.set_servoing_mode(Kinova::Api::Base::ServoingMode::LOW_LEVEL_SERVOING);
   auto control_mode_message = Kinova::Api::ActuatorConfig::ControlModeInformation();
-  control_mode_message.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::TORQUE);
+  control_mode_message.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::TORQUE_HIGH_VELOCITY);
   try
   {
     ROS_INFO("Set the servoing mode");
