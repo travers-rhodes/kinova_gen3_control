@@ -26,7 +26,7 @@
   <rosparam command="load" file="$(find kinova_gen3_control)/config/kinova_gen3_controllers.yaml"/>
 
 <!-- just spawn (and never unload) these controllers https://github.com/ros-controls/ros_control/issues/304 -->
-  <arg name="controllers_to_spawn" default="joint_7_position_controller" />
+  <arg name="controllers_to_spawn" default="joint_1_position_controller" />
 
   <!-- load and start these controllers --> 
   <node name="kinova_gen3_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
