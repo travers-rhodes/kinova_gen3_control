@@ -10,7 +10,7 @@ void GazeboKinovaNetworkConnection::joint_state_callback(const sensor_msgs::Join
   }
   // and we want to mimic the weird negative effort that kinova does, too (sigh)
   // and we want to mimic the fact that kinova does degrees too. (DOUBLE sigh)
-  for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+  for (int i = 0; i < GAZEBO_NUMBER_OF_JOINTS; i++) {
     pos_[i] = angles::to_degrees(message.position[i+has_gripper]);
     vel_[i] = angles::to_degrees(message.velocity[i+has_gripper]);
     eff_[i] = -message.effort[i+has_gripper];
@@ -21,14 +21,14 @@ GazeboKinovaNetworkConnection::GazeboKinovaNetworkConnection(ros::NodeHandle &nh
 {
   ROS_INFO("GazeboNetwork: Creating connection");
   sub_ = nh.subscribe("/my_gen3/joint_states", 1, &GazeboKinovaNetworkConnection::joint_state_callback, this);
-  for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+  for (int i = 0; i < GAZEBO_NUMBER_OF_JOINTS; i++) {
     std::string joint_topic = "/my_gen3/joint_" + std::to_string(i+1) + "_effort_controller/command";
     uint32_t queue_size = 1;
     bool latch = true;
     pub_.push_back(nh.advertise<std_msgs::Float64>(joint_topic, queue_size, latch));
   }
   // before joint_states publish, be sure to initialize eff_ to 0's
-  for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+  for (int i = 0; i < GAZEBO_NUMBER_OF_JOINTS; i++) {
     eff_[i] = 0;
   }
   // wait until joint_states is publishing before allowing the rest of the code to continue
@@ -54,7 +54,7 @@ void GazeboKinovaNetworkConnection::ActuatorSetControlMode(const Kinova::Api::Ac
 void GazeboKinovaNetworkConnection::CyclicRefresh(const Kinova::Api::BaseCyclic::Command& base_command)
 {
   ROS_DEBUG_THROTTLE(1, "GazeboNetwork (throttled): Writing Effort Commands");
-  for (int i = 0; i < NUMBER_OF_JOINTS; i++) {
+  for (int i = 0; i < GAZEBO_NUMBER_OF_JOINTS; i++) {
     std_msgs::Float64 eff_cmd;
     eff_cmd.data = base_command.actuators()[i].torque_joint();
     pub_[i].publish(eff_cmd);

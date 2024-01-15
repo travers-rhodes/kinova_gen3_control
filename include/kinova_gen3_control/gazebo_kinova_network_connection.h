@@ -10,8 +10,7 @@
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/JointState.h>
 
-// When not testing individual joints, this should be 7
-#define NUMBER_OF_JOINTS 7
+#define GAZEBO_NUMBER_OF_JOINTS 7
 
 // This object, when constructed, passes through all commands to gazebo joint effort interfaces
 // This allows us to test much of our control logic with Gazebo 
@@ -30,10 +29,10 @@ class GazeboKinovaNetworkConnection : public KinovaNetworkConnection
   private:
     ros::Subscriber sub_;
     std::vector<ros::Publisher> pub_;
-    double cmd_[NUMBER_OF_JOINTS];
-    double pos_[NUMBER_OF_JOINTS];
-    double vel_[NUMBER_OF_JOINTS];
-    double eff_[NUMBER_OF_JOINTS];
+    double cmd_[GAZEBO_NUMBER_OF_JOINTS];
+    double pos_[GAZEBO_NUMBER_OF_JOINTS];
+    double vel_[GAZEBO_NUMBER_OF_JOINTS];
+    double eff_[GAZEBO_NUMBER_OF_JOINTS];
 };
 
 #endif // GAZEBO_KINOVA_NETWORK_CONNECTION_H 

@@ -18,9 +18,9 @@
 
 // 1-indexed first and last joint indices
 // When not testing individual joints, this should be 1
-#define FIRST_JOINT_INDEX 1
+#define FIRST_JOINT_INDEX 7
 // When not testing individual joints, this should be 7
-#define NUMBER_OF_JOINTS 7
+#define NUMBER_OF_JOINTS 1 
 
 class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
 {
