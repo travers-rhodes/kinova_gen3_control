@@ -36,13 +36,13 @@ gen3_joint_trajectory_controller:
     state_publish_rate:  25
     action_monitor_rate: 25
     gains:
-        joint_1: {p: 80.0, i: 0.0, d: 2.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_2: {p: 400.0, i: 0.0, d: 8.0, i_clamp_min: -30.0, i_clamp_max: 30.0, antiwindup: true}
-        joint_3: {p: 80.0, i: 0.0, d: 2.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_4: {p: 80.0, i: 0.0, d: 0.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_5: {p: 16.0, i: 0.0, d: 0.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_6: {p: 16.0, i: 0.0, d: 0.0, i_clamp_min: -5.0, i_clamp_max: 5.0, antiwindup: true}
-        joint_7: {p: 16.0, i: 0.0, d: 0.0, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
+        joint_1: {p: 800.0, i: 0.0, d: 20.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_2: {p: 2000.0, i: 0.0, d: 40.0, i_clamp_min: -30.0, i_clamp_max: 30.0, antiwindup: true}
+        joint_3: {p: 800.0, i: 0.0, d: 20.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_4: {p: 800.0, i: 0.0, d: 0.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_5: {p: 320.0, i: 0.0, d: 0.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_6: {p: 320.0, i: 0.0, d: 0.0, i_clamp_min: -5.0, i_clamp_max: 5.0, antiwindup: true}
+        joint_7: {p: 320.0, i: 0.0, d: 0.0, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
 
 joint_1_effort_controller:
     joint: joint_1
