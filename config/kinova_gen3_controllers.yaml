@@ -36,13 +36,13 @@ gen3_joint_trajectory_controller:
     state_publish_rate:  25
     action_monitor_rate: 25
     gains:
-        joint_1: {p: 1000.0, i: 0.0, d: 100.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_2: {p: 2000.0, i: 0.0, d: 150.0, i_clamp_min: -30.0, i_clamp_max: 30.0, antiwindup: true}
-        joint_3: {p: 1000.0, i: 0.0, d: 150.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_4: {p: 1000.0, i: 0.0, d: 100.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_5: {p: 400.0, i: 0.0, d: 20.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
-        joint_6: {p: 400.0, i: 0.0, d: 20.0, i_clamp_min: -5.0, i_clamp_max: 5.0, antiwindup: true}
-        joint_7: {p: 40.0, i: 0.0, d: 4.0, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
+        joint_1: {p: 20.0, i: 0.0, d: 1.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_2: {p: 100.0, i: 0.0, d: 4.0, i_clamp_min: -30.0, i_clamp_max: 30.0, antiwindup: true}
+        joint_3: {p: 20.0, i: 0.0, d: 1.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_4: {p: 20.0, i: 0.0, d: 0.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_5: {p: 4.0, i: 0.0, d: 0.0, i_clamp_min: -15.0, i_clamp_max: 15.0, antiwindup: true}
+        joint_6: {p: 4.0, i: 0.0, d: 0.0, i_clamp_min: -5.0, i_clamp_max: 5.0, antiwindup: true}
+        joint_7: {p: 4.0, i: 0.0, d: 0.0, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
 
 joint_1_effort_controller:
     joint: joint_1
@@ -69,58 +69,58 @@ joint_7_effort_controller:
 joint_1_position_controller:
     joint: joint_1
     pid:
-        p: 1000.0
+        p: 20.0
         i: 0.0
-        d: 100.0
+        d: 1.0
     type: effort_controllers/JointPositionController
 
 joint_2_position_controller:
     joint: joint_2
     pid:
-        p: 2000.0
+        p: 100.0
         i: 0.0
-        d: 150.0
+        d: 4.0
     type: effort_controllers/JointPositionController
 
 joint_3_position_controller:
     joint: joint_3
     pid:
-        p: 1000.0
+        p: 20.0
         i: 0.0
-        d: 150.0
+        d: 1.0
     type: effort_controllers/JointPositionController
 
 joint_4_position_controller:
     joint: joint_4
     pid:
-        p: 1000.0
+        p: 20.0
         i: 0.0
-        d: 100.0
+        d: 0.0
     type: effort_controllers/JointPositionController
 
 joint_5_position_controller:
     joint: joint_5
     pid:
-        p: 400.0
+        p: 4.0
         i: 0.0
-        d: 20.0
+        d: 0.0
         i_clamp: 200
     type: effort_controllers/JointPositionController
 
 joint_6_position_controller:
     joint: joint_6
     pid:
-        p: 400.0
+        p: 4.0
         i: 0.0
-        d: 20.0
+        d: 0.0
         i_clamp: 200
     type: effort_controllers/JointPositionController
 
 joint_7_position_controller:
     joint: joint_7
     pid:
-        p: 40.0
+        p: 4.0
         i: 0.0
-        d: 4.0
+        d: 0.0
         i_clamp: 200
     type: effort_controllers/JointPositionController

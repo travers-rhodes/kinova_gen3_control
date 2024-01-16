@@ -9,7 +9,7 @@ InitializeLowLevelControl(std::shared_ptr<KinovaNetworkConnection> network_conne
   auto servoing_mode = Kinova::Api::Base::ServoingModeInformation();
   servoing_mode.set_servoing_mode(Kinova::Api::Base::ServoingMode::LOW_LEVEL_SERVOING);
   auto control_mode_message = Kinova::Api::ActuatorConfig::ControlModeInformation();
-  control_mode_message.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::TORQUE_HIGH_VELOCITY);
+  control_mode_message.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::CURRENT);
   try
   {
     ROS_INFO("Set the servoing mode");
@@ -140,11 +140,13 @@ void KinovaGen3HardwareInterface::publish_throttled_debug_message(int severity, 
       std::vector<float> read_position(std::begin(pos_), std::end(pos_));
       std::vector<float> read_velocity(std::begin(vel_), std::end(vel_));
       std::vector<float> read_effort(std::begin(eff_), std::end(eff_));
+      std::vector<float> read_current(std::begin(curr_), std::end(curr_));
       realtime_pub_->msg_.command_before_limiting = before_limiting; 
       realtime_pub_->msg_.command = command; 
       realtime_pub_->msg_.read_position = read_position; 
       realtime_pub_->msg_.read_velocity = read_velocity; 
       realtime_pub_->msg_.read_effort = read_effort;
+      realtime_pub_->msg_.read_current = read_current;
       // save last published severity and reset counter
       last_publish_severity_ = severity;
       debug_msg_counter_ = 0;
@@ -206,11 +208,9 @@ void KinovaGen3HardwareInterface::write(const ros::Duration& period)
   for (int i = 0; i < NUMBER_OF_JOINTS; i++)
   {
     // Note that mutable_actuators is a 0-indexed array
-    base_command.mutable_actuators(i + array_index_offset)->set_torque_joint(cmd_[i]);
-    // 2024-01-11 Also send the current actuator velocity, 
-    // in case that explains the amazingly perfect
-    // Frictional joint ``damping'' coefficient of 1.0 Hz
-    base_command.mutable_actuators(i + array_index_offset)->set_velocity(base_feedback_.actuators(i).velocity());
+    //base_command.mutable_actuators(i + array_index_offset)->set_torque_joint(cmd_[i]);
+    base_command.mutable_actuators(i + array_index_offset)->set_current_motor(cmd_[i]/curr_to_torque_factor_[i + array_index_offset]);
+
   }
 
   try
@@ -252,7 +252,10 @@ void KinovaGen3HardwareInterface::read()
     // Note that this oddity is also reflected on the Kinova Dashboard 
     // (a positive torque there also means the joint is trying to make the position more negative)
     eff_[i] = -base_feedback_.actuators(i + array_index_offset).torque(); // originally Newton * meters
-    cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
+    //cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
+    curr_[i] = base_feedback_.actuators(i + array_index_offset).current_motor(); // Amps
+    cmd_[i] = curr_[i]/2.; // so that weird stuff doesn't happen before controller loads.
+                           // 2 is here to avoid noise causing growth in the command
     if (isnan(cmd_[i])) {
       ROS_ERROR("Had a cmd of NAN!!!!!");
     }

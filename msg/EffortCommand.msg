@@ -4,5 +4,6 @@ float32[] command
 float32[] read_position
 float32[] read_velocity 
 float32[] read_effort
+float32[] read_current
 
 
