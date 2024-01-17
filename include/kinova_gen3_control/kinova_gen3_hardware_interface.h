@@ -56,13 +56,13 @@ class KinovaGen3HardwareInterface : public hardware_interface::RobotHW
     // https://github.com/Kinovarobotics/kortex/issues/165#issuecomment-1563424647
     // Divide desired torque by this number to get a current to send to motor.
     float curr_to_torque_factor_[7] = {
-      10,
-      10,
-      10,
-      10,
-      10,
-      10,
-      10
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7 
     };
     // For debugging, periodically log the actual commands we send to the kinova arm
     boost::shared_ptr<realtime_tools::RealtimePublisher<kinova_gen3_control::EffortCommand>> realtime_pub_;
