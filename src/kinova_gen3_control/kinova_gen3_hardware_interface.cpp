@@ -252,7 +252,8 @@ void KinovaGen3HardwareInterface::read()
     // Note that this oddity is also reflected on the Kinova Dashboard 
     // (a positive torque there also means the joint is trying to make the position more negative)
     eff_[i] = -base_feedback_.actuators(i + array_index_offset).torque(); // originally Newton * meters
-    cmd_[i] = eff_[i]; // so that weird stuff doesn't happen before controller loads
+    cmd_[i] = eff_[i]/2.0; // so that weird stuff doesn't happen before controller loads
+                           // the factor of 2 reduction is to basically just set the control to close to 0
     // This read in curr_ is only used for debugging
     curr_[i] = base_feedback_.actuators(i + array_index_offset).current_motor(); // Amps
     if (isnan(cmd_[i])) {
