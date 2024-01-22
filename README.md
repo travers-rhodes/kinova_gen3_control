@@ -7,7 +7,7 @@ Open-source ros_control hardware_interface::RobotHW (hardware_interface::EffortJ
 cd ~
 mkdir -p my_catkin_ws/src
 cd my_catkin_ws/src
-git clone https://github.com/travers-rhodes/kinova_gen3_control.git
+git clone https://github.com/anonymized/kinova_gen3_control.git
 ```
 ### Clone the `kortex_description` package 
 You can clone this from `https://github.com/Kinovarobotics/ros_kortex.git` (and just ignore the rest of the packages that are bundled with that).
@@ -21,7 +21,7 @@ git clone https://github.com/Kinovarobotics/ros_kortex.git
 ### Make sure you have all required dependencies installed
 ```
 cd ~/my_catkin_ws/src
-source /opt/ros/melodic/setup.bash
+source /opt/ros/noetic/setup.bash
 rosdep init
 rosdep update
 rosdep install --from-paths . --ignore-src -r
@@ -33,9 +33,9 @@ Please download the latest kortex_api zip folder listed at https://github.com/Ki
 Then unzip that file, then run something like the below to copy the needed lib and include files into new directories called kinova_gen3_control/kortex_api/linux_gcc_x86-64/lib and kinova_gen3_control/kortex_api/linux_gcc_x86-64/include
 ```
 cd ~/Downloads
-wget https://artifactory.kinovaapps.com:443/artifactory/generic-public/kortex/API/2.3.0/linux_x86-64_x86_gcc.zip
-unzip linux_x86-64_x86_gcc.zip -d linux_gcc_x86-64
-cp -r ~/Downloads/linux_gcc_x86-64/* ~/my_catkin_ws/src/kinova_gen3_control/kortex_api/               
+wget https://artifactory.kinovaapps.com/artifactory/generic-local-public/kortex/API/2.6.0/linux_x86-64_x86_gcc.zip
+unzip linux_x86-64_x86_gcc.zip -d kortex_api
+cp -r ~/Downloads/kortex_api/* ~/custom_trajectory_ws/src/kinova_gen3_control/kortex_api/
 ```
 
 ### Build the packages we care about (blacklist all the extra packages bundled with ros_kortex)
@@ -52,7 +52,7 @@ Together, all the install instructions above are
 cd ~
 mkdir -p my_catkin_ws/src
 cd ~/my_catkin_ws/src
-git clone https://github.com/travers-rhodes/kinova_gen3_control.git
+git clone https://github.com/anonymized/kinova_gen3_control.git
 git clone https://github.com/Kinovarobotics/ros_kortex.git
 source /opt/ros/melodic/setup.bash
 rosdep init
@@ -63,7 +63,7 @@ rm -f linux_x86-64_x86_gcc.zip
 rm -rf linux_gcc_x86-64
 wget https://artifactory.kinovaapps.com:443/artifactory/generic-public/kortex/API/2.3.0/linux_x86-64_x86_gcc.zip
 unzip linux_x86-64_x86_gcc.zip -d linux_gcc_x86-64
-cp -r ~/Downloads/linux_gcc_x86-64/* ~/my_catkin_ws/src/kinova_gen3_control/kortex_api/ 
+cp -r ~/Downloads/linux_gcc_x86-64/* ~/my_catkin_ws/src/kinova_gen3_control/kortex_api/
 cd ~/my_catkin_ws
 catkin config --blacklist kortex_control kortex_driver kortex_examples kortex_gazebo gazebo_version_helpers gazebo_grasp_plugin roboticsgroup_gazebo_plugins  gen3_lite_gen3_lite_2f_move_it_config gen3_move_it_config gen3_robotiq_2f_140_move_it_config roboticsgroup_upatras_gazebo_plugins
 source /opt/ros/melodic/setup.bash

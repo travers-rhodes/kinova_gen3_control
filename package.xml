@@ -4,7 +4,7 @@
   <version>0.0.0</version>
   <description>The kinova_gen3_control package</description>
 
-  <maintainer email="tsr42@cornell.edu">Travers Rhodes</maintainer>
+  <maintainer email="anon">Anonymous</maintainer>
   <license>MIT</license>
   <!-- The *depend tags are used to specify dependencies -->
   <!-- Dependencies can be catkin packages or system dependencies -->
